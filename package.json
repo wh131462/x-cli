@@ -7,7 +7,8 @@
         "x": "bin/x.js"
     },
     "scripts": {
-        "prepare": "husky"
+        "prepare": "husky",
+        "commit": "cz"
     },
     "author": "",
     "license": "ISC",

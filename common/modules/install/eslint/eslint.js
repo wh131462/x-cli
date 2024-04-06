@@ -3,7 +3,16 @@ import { npmInstall } from '#common/utils/npmInstall.js';
 import { createConfig } from '#common/utils/createConfig.js';
 
 console.log('Installing eslint...');
-npmInstall(['eslint-plugin-unused-imports', '@typescript-eslint/eslint-plugin@latest', '@typescript-eslint/parser@latest', 'eslint@latest', 'eslint-config-prettier'], true);
+npmInstall(
+    [
+        'eslint-plugin-unused-imports',
+        '@typescript-eslint/eslint-plugin@latest',
+        '@typescript-eslint/parser@latest',
+        'eslint@latest',
+        'eslint-config-prettier'
+    ],
+    true
+);
 
 // 生成 eslint 配置文件
 const eslintConfig = {

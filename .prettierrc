@@ -4,7 +4,7 @@
   "semi": true,
   "tabWidth": 4,
   "trailingComma": "none",
-  "printWidth": 360,
+  "printWidth": 120,
   "quoteProps": "consistent",
   "bracketSpacing": true,
   "bracketSameLine": true,

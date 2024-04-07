@@ -1,5 +1,14 @@
-const { exec } = require('child_process');
+import { exec, execSync } from 'child_process';
+import { npmInstall } from '#common/utils/manager/npm.js';
 
+/**
+ * yarn安装
+ * @returns {Promise<void>}
+ * @constructor
+ */
+export const YARN_INSTALL = async () => {
+    await npmInstall('yarn', false, true);
+};
 // 使用yarn安装包
 export const yarnInstall = (packageName, isDev = false, isGlobal = false, option = {}) => {
     let command = 'yarn';

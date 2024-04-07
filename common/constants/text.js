@@ -1,6 +1,6 @@
 export const Examples = `
 Examples:
-  # Initialize a new projec
+  # Initialize a new project
   $ x new myProject
   # Create a component
   $ x create component myComponent -d src/App

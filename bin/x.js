@@ -2,6 +2,7 @@
 import { program } from 'commander';
 import { DefaultVer } from '#common/constants/x.const.js';
 import { Examples } from '#common/constants/text.js';
+import { init } from '#common/command/init/init.js';
 
 const version = process.env.VERSION ?? DefaultVer;
 program
@@ -14,6 +15,17 @@ program
     })
     .on('--help', () => {
         console.log(Examples);
+    });
+
+// 初始化
+program
+    .command('init')
+    .description('Initialize cli dependencies')
+    .action(() => {
+        console.log(`Initializing cli dependencies`);
+        init()
+            .then(() => process.exit(0))
+            .catch(() => process.exit(1));
     });
 // 处理自定义命令
 program

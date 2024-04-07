@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import esbuild from 'esbuild';
 import { rootPath } from '#common/utils/path.js';
-import { getPackageJson } from '#common/utils/env.js';
+import { getPackageJson } from '#common/utils/getPackageJson.js';
 const packageJson = getPackageJson();
 const outputDir = 'dist';
 const esbuildConfig = {

@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { __dirname } from '#common/utils/path.js';
 
 /**
  * 获取环境是开发还是已发布

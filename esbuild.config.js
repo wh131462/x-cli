@@ -7,7 +7,7 @@ import { rootPath } from '#common/utils/env.js';
 const packageJson = JSON.parse(fs.readFileSync(path.resolve(rootPath, 'package.json'), 'utf-8'));
 const outputDir = 'dist';
 const esbuildConfig = {
-    entryPoint: 'bin/x.js',
+    entryPoints: ['bin/x.js'],
     outdir: `${outputDir}/bin`,
     platform: 'node',
     target: ['node20'],

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { program } from 'commander';
 import { DefaultVer } from '#common/constants/x.const.js';
+import { Examples } from '#common/constants/text.js';
 
 const version = process.env.VERSION ?? DefaultVer;
 program
@@ -12,15 +13,7 @@ program
         process.exit(1);
     })
     .on('--help', () => {
-        console.log(`\nExamples:\n  # Initialize a new project\n  $ x new myProject\n  # Create a component\n`);
-        console.log('  $ x create component myComponent -d src/App');
-        console.log('');
-        console.log('  # Remove a service');
-        console.log('  $ x remove service myService -d src/App');
-        console.log('');
-        console.log('  # Add a plugin');
-        console.log('  $ x plugin add myPlugin');
-        console.log('');
+        console.log(Examples);
     });
 // 处理自定义命令
 program

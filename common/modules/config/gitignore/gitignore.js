@@ -1,5 +1,5 @@
 // 7. 创建 .gitignore 文件
-import { createConfig } from '#common/utils/createConfig.js';
+import { writeConfig } from '#common/utils/writeConfig.js';
 
 console.log('Creating .gitignore file...');
 const gitignoreContent = `# Compiled output
@@ -39,4 +39,4 @@ typings
 Thumbs.db
 yarn.lock
 package-lock.json`;
-createConfig('.gitignore', gitignoreContent);
+writeConfig('.gitignore', gitignoreContent);

@@ -1,7 +1,7 @@
 // 6. 安装 husky
 import { npmInstall } from '#common/utils/npmInstall.js';
 import { execSync } from 'child_process';
-import { createConfig } from '#common/utils/createConfig.js';
+import { writeConfig } from '#common/utils/writeConfig.js';
 
 console.log('Installing husky...');
 npmInstall('husky', true);
@@ -22,5 +22,5 @@ exit 0;`;
 const huskyConfigCommitMsg = `#!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 npx --no -- commitlint --edit \$1`;
-createConfig('.husky/pre-commit', huskyConfigPrecommit);
-createConfig('.husky/commit-msg', huskyConfigCommitMsg);
+writeConfig('.husky/pre-commit', huskyConfigPrecommit);
+writeConfig('.husky/commit-msg', huskyConfigCommitMsg);

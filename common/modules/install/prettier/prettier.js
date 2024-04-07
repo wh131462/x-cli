@@ -1,6 +1,6 @@
 // 1. 安装 prettier
 import { npmInstall } from '#common/utils/npmInstall.js';
-import { createConfig } from '#common/utils/createConfig.js';
+import { writeConfig } from '#common/utils/writeConfig.js';
 console.log('Installing prettier...');
 
 npmInstall('prettier', true);
@@ -20,4 +20,4 @@ const prettierConfig = {
     endOfLine: 'lf',
     singleAttributePerLine: true
 };
-createConfig('.prettierrc', prettierConfig);
+writeConfig('.prettierrc', prettierConfig);

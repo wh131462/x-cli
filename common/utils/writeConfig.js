@@ -5,7 +5,7 @@ import { writeFileSync } from 'fs';
  * @param filename
  * @param config
  */
-export const createConfig = (filename, config) => {
+export const writeConfig = (filename, config) => {
     let content;
     if (typeof config === 'object' || config === null) {
         content = JSON.stringify(config, null, 2);

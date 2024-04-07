@@ -1,6 +1,6 @@
 // 2. 安装 eslint
 import { npmInstall } from '#common/utils/npmInstall.js';
-import { createConfig } from '#common/utils/createConfig.js';
+import { writeConfig } from '#common/utils/writeConfig.js';
 
 console.log('Installing eslint...');
 npmInstall(
@@ -44,4 +44,4 @@ const eslintConfig = {
         '@typescript-eslint/prefer-readonly-parameter-types': 'off'
     }
 };
-createConfig('.eslintrc', eslintConfig);
+writeConfig('.eslintrc', eslintConfig);

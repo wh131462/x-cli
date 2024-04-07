@@ -1,19 +1,16 @@
+import fs from 'node:fs';
 import path from 'node:path';
-import { __dirname } from '#common/utils/path.js';
+import { rootPath } from '#common/utils/path.js';
 
 /**
- * 获取环境是开发还是已发布
+ * 获取环境是开发还是生产
  * @returns {string}
  */
-export const env = () => {
-    if (import.meta.url.endsWith('env.js')) {
-        return 'dev';
-    } else {
-        return 'prod';
-    }
-};
+export const env = import.meta.url?.endsWith('env.js') ? 'dev' : 'prod';
 /**
- * 根路径
- * @type {string}
+ * package json
+ * @type {any}
  */
-export const rootPath = env() === 'dev' ? path.resolve(__dirname, '../../') : path.resolve(__dirname, '../');
+export const getPackageJson = () => {
+    return JSON.parse(fs.readFileSync(path.resolve(rootPath, 'package.json'), 'utf-8'));
+};

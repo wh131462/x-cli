@@ -1,7 +1,7 @@
 // 5. 安装 cz
 import { npmInstall } from '#common/utils/npmInstall.js';
 import { execSync } from 'child_process';
-import { createConfig } from '#common/utils/createConfig.js';
+import { writeConfig } from '#common/utils/writeConfig.js';
 
 console.log('Installing commitizen...');
 npmInstall('commitizen', true);
@@ -11,4 +11,4 @@ execSync('commitizen init cz-conventional-changelog --save-dev --save-exact');
 const czConfig = {
     path: 'cz-conventional-changelog'
 };
-createConfig('.czrc', czConfig);
+writeConfig('.czrc', czConfig);

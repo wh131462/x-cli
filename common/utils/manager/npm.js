@@ -41,10 +41,9 @@ export const npmInstall = (packageName, isDev = false, isGlobal = false, options
             if (error) {
                 reject(error);
             } else {
+                logger.info(`${stdout}\n[npm][${packageName}]安装完成!`);
                 resolve({ stdout, stderr });
             }
-            console.log(`stdout: ${stdout}`);
-            console.error(`stderr: ${stderr}`);
         });
     });
 };

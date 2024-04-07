@@ -1,5 +1,7 @@
 import { PNPM_INSTALL } from '#common/utils/manager/pnpm.js';
 import { exec } from 'child_process';
+import { resolve } from 'node:path';
+import { npmInstall } from '#common/utils/manager/npm.js';
 
 export const DefaultVer = '0.0.0';
 /**
@@ -12,7 +14,7 @@ export const cli_dependencies = [
         check: () => {
             return new Promise((resolve, reject) => {
                 exec('pnpm -v', (error, stdout, stderr) => {
-                    if (error) reject();
+                    if (error) resolve(false);
                     if (stdout.includes('.')) {
                         resolve(true);
                     } else {
@@ -22,5 +24,23 @@ export const cli_dependencies = [
             });
         },
         install: PNPM_INSTALL
+    },
+    {
+        name: 'nx',
+        check: () => {
+            return new Promise((resolve) => {
+                exec('nx --version', (error, stdout, stderr) => {
+                    if (error) resolve(false);
+                    if (stdout.includes('.')) {
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                });
+            });
+        },
+        install: async () => {
+            await npmInstall('nx', false, true);
+        }
     }
 ];

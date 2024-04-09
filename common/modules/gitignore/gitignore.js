@@ -1,5 +1,5 @@
 // 7. 创建 .gitignore 文件
-import { writeConfig } from '#common/utils/writeConfig.js';
+import { writeConfig } from '#common/utils/file/writeConfig.js';
 
 console.log('Creating .gitignore file...');
 const gitignoreContent = `# Compiled output

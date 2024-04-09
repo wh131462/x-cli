@@ -1,6 +1,6 @@
 // 3. 安装 lint-staged
-import { npmInstall } from '#common/utils/npmInstall.js';
-import { writeConfig } from '#common/utils/writeConfig.js';
+import { writeConfig } from '#common/utils/file/writeConfig.js';
+import { npmInstall } from '#common/utils/manager/npm.js';
 console.log('Installing lint-staged...');
 npmInstall('lint-staged', true);
 // 生成 lint-staged 配置文件

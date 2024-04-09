@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { env } from '#common/utils/env.js';
+import { env } from '#common/utils/node/env.js';
 
 class LOGGER {
     isOn = true;

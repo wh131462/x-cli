@@ -1,4 +1,4 @@
-import { rootPath } from '#common/utils/path.js';
+import { rootPath } from '#common/utils/file/path.js';
 import { resolve } from 'node:path';
 import { readFileSync } from 'node:fs';
 

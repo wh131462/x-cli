@@ -1,6 +1,6 @@
 // 1. 安装 prettier
 import { npmInstall } from '#common/utils/npmInstall.js';
-import { writeConfig } from '#common/utils/writeConfig.js';
+import { writeConfig } from '#common/utils/file/writeConfig.js';
 console.log('Installing prettier...');
 
 npmInstall('prettier', true);

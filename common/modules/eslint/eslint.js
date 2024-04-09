@@ -1,20 +1,6 @@
 // 2. 安装 eslint
-import { npmInstall } from '#common/utils/npmInstall.js';
-import { writeConfig } from '#common/utils/writeConfig.js';
-
-console.log('Installing eslint...');
-npmInstall(
-    [
-        'eslint-plugin-unused-imports',
-        '@typescript-eslint/eslint-plugin@latest',
-        '@typescript-eslint/parser@latest',
-        'eslint@latest',
-        'eslint-config-prettier'
-    ],
-    true
-);
-
-// 生成 eslint 配置文件
+import { writeConfig } from '#common/utils/file/writeConfig.js';
+import { npmInstall } from '#common/utils/manager/npm.js';
 const eslintConfig = {
     env: {
         browser: true,
@@ -44,4 +30,16 @@ const eslintConfig = {
         '@typescript-eslint/prefer-readonly-parameter-types': 'off'
     }
 };
-writeConfig('.eslintrc', eslintConfig);
+export const eslint = {
+    install: npmInstall(
+        [
+            'eslint-plugin-unused-imports',
+            '@typescript-eslint/eslint-plugin@latest',
+            '@typescript-eslint/parser@latest',
+            'eslint@latest',
+            'eslint-config-prettier'
+        ],
+        true
+    ),
+    config: writeConfig('.eslintrc', eslintConfig)
+};

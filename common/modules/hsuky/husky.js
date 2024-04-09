@@ -1,7 +1,7 @@
 // 6. 安装 husky
 import { npmInstall } from '#common/utils/npmInstall.js';
 import { execSync } from 'child_process';
-import { writeConfig } from '#common/utils/writeConfig.js';
+import { writeConfig } from '#common/utils/file/writeConfig.js';
 
 console.log('Installing husky...');
 npmInstall('husky', true);

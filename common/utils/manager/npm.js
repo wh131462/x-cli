@@ -1,5 +1,7 @@
-import { exec, execSync } from 'child_process';
+import { exec } from 'child_process';
 import { logger } from '#common/utils/logger.js';
+import { nameConverter } from '#common/utils/manager/utils.js';
+import { execute } from '#common/utils/node/execute.js';
 
 /**
  * npm安装
@@ -33,19 +35,10 @@ export const npmInstall = (packageName, isDev = false, isGlobal = false, options
         command = 'npm';
     }
 
-    const fullCommand = `${command} ${installType} ${packageName} ${Object.keys(options)
+    const fullCommand = `${command} ${installType} ${nameConverter(packageName)} ${Object.keys(options)
         .map((key) => `--${key}=${options[key]}`)
         .join(' ')}`;
-    return new Promise((resolve, reject) => {
-        exec(fullCommand, (error, stdout, stderr) => {
-            if (error) {
-                reject(error);
-            } else {
-                logger.info(`${stdout}\n[npm][${packageName}]安装完成!`);
-                resolve({ stdout, stderr });
-            }
-        });
-    });
+    return execute(fullCommand);
 };
 
 /**
@@ -57,20 +50,10 @@ export const npmInstall = (packageName, isDev = false, isGlobal = false, options
  */
 export const npmUninstall = (packageName, isGlobal = false, options = {}) => {
     let command = isGlobal ? 'npm uninstall -g' : 'npm uninstall';
-    const fullCommand = `${command} ${packageName} ${Object.keys(options)
+    const fullCommand = `${command} ${nameConverter(packageName)} ${Object.keys(options)
         .map((key) => `--${key}=${options[key]}`)
         .join(' ')}`;
-    return new Promise((resolve, reject) => {
-        exec(fullCommand, (error, stdout, stderr) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve({ stdout, stderr });
-            }
-            console.log(`stdout: ${stdout}`);
-            console.error(`stderr: ${stderr}`);
-        });
-    });
+    return execute(fullCommand);
 };
 /**
  * 运行npm脚本
@@ -82,36 +65,7 @@ export const npmRun = (scriptName, options = {}) => {
     const fullCommand = `npm run ${scriptName} ${Object.keys(options)
         .map((key) => `--${key}=${options[key]}`)
         .join(' ')}`;
-    return new Promise((resolve, reject) => {
-        exec(fullCommand, (error, stdout, stderr) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve({ stdout, stderr });
-            }
-            console.log(`stdout: ${stdout}`);
-            console.error(`stderr: ${stderr}`);
-        });
-    });
-};
-/**
- * npx
- * @param command
- * @returns {Promise<unknown>}
- */
-export const npx = (command) => {
-    const fullCommand = `$npx ${command}`;
-    return new Promise((resolve, reject) => {
-        exec(fullCommand, (error, stdout, stderr) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve({ stdout, stderr });
-            }
-            console.log(`stdout: ${stdout}`);
-            console.error(`stderr: ${stderr}`);
-        });
-    });
+    return execute(fullCommand);
 };
 
 /**
@@ -119,16 +73,7 @@ export const npx = (command) => {
  * @param packageName
  * @param isGlobal
  */
-export const npmHas = (packageName, isGlobal = false) => {
+export const npmHas = async (packageName, isGlobal = false) => {
     const command = `npm list ${packageName} ${isGlobal ? '-g' : ''} --depth=0`;
-    return new Promise((resolve, reject) => {
-        exec(`${command} | grep ${packageName}`, (error, stdout, stderr) => {
-            if (error) {
-                reject(error);
-            } else {
-                const hasPackage = stdout?.trim()?.includes(packageName);
-                resolve(hasPackage);
-            }
-        });
-    });
+    return (await execute(`${command} | grep ${packageName}`))?.trim()?.includes(packageName);
 };

@@ -15,11 +15,7 @@ export const cli_dependencies = [
             return new Promise((resolve, reject) => {
                 exec('pnpm -v', (error, stdout, stderr) => {
                     if (error) resolve(false);
-                    if (stdout.includes('.')) {
-                        resolve(true);
-                    } else {
-                        resolve(false);
-                    }
+                    resolve(!!stdout.includes('.'));
                 });
             });
         },
@@ -31,11 +27,7 @@ export const cli_dependencies = [
             return new Promise((resolve) => {
                 exec('nx --version', (error, stdout, stderr) => {
                     if (error) resolve(false);
-                    if (stdout.includes('.')) {
-                        resolve(true);
-                    } else {
-                        resolve(false);
-                    }
+                    resolve(!!stdout.includes('.'));
                 });
             });
         },

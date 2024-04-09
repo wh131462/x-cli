@@ -1,5 +1,6 @@
-import { exec, execSync } from 'child_process';
 import { npmInstall } from '#common/utils/manager/npm.js';
+import { execute } from '#common/utils/node/execute.js';
+import { nameConverter } from '#common/utils/manager/utils.js';
 
 /**
  * yarn安装
@@ -23,54 +24,24 @@ export const yarnInstall = (packageName, isDev = false, isGlobal = false, option
         command = 'yarn';
     }
 
-    const fullCommand = `${command} ${installType} ${packageName} ${Object.keys(option)
+    const fullCommand = `${command} ${installType} ${nameConverter(packageName)} ${Object.keys(option)
         .map((key) => `--${key}=${option[key]}`)
         .join(' ')}`;
-    return new Promise((resolve, reject) => {
-        exec(fullCommand, (error, stdout, stderr) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve({ stdout, stderr });
-            }
-            console.log(`stdout: ${stdout}`);
-            console.error(`stderr: ${stderr}`);
-        });
-    });
+    return execute(fullCommand);
 };
 
 // 使用yarn卸载包
 export const yarnUninstall = (packageName, isGlobal = false, options = {}) => {
     let command = isGlobal ? 'yarn global remove' : 'yarn remove';
-    const fullCommand = `${command} ${packageName} ${Object.keys(options)
+    const fullCommand = `${command} ${nameConverter(packageName)} ${Object.keys(options)
         .map((key) => `--${key}=${options[key]}`)
         .join(' ')}`;
-    return new Promise((resolve, reject) => {
-        exec(fullCommand, (error, stdout, stderr) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve({ stdout, stderr });
-            }
-            console.log(`stdout: ${stdout}`);
-            console.error(`stderr: ${stderr}`);
-        });
-    });
+    return execute(fullCommand);
 };
 // 运行yarn脚本
 export const yarnRun = (scriptName, options = {}) => {
     const fullCommand = `yarn run ${scriptName} ${Object.keys(options)
         .map((key) => `--${key}=${options[key]}`)
         .join(' ')}`;
-    return new Promise((resolve, reject) => {
-        exec(fullCommand, (error, stdout, stderr) => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve({ stdout, stderr });
-            }
-            console.log(`stdout: ${stdout}`);
-            console.error(`stderr: ${stderr}`);
-        });
-    });
+    return execute(fullCommand);
 };

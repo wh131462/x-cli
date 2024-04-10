@@ -8,7 +8,7 @@ import inquirer from 'inquirer';
  * @param validate
  * @returns {Promise<unknown>}
  */
-export const prompt = (question, defaultValue = null, type = 'input', validate = () => true) => {
+export const inquire = (question, defaultValue = null, type = 'input', validate = () => true) => {
     return new Promise((resolve, reject) => {
         inquirer
             .prompt(

@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import { pnpmInstall } from '#common/utils/manager/pnpm.js';
 import { createFile } from '#common/utils/file/create.js';
 import { uiStorybookMain } from '#common/command/new/templates/ui-storybook-main.js';
-import { prompt } from '#common/utils/ui/promote.js';
+import { inquire } from '#common/utils/ui/promote.js';
 
 export const newProject = async (projectName) => {
     // 执行创建工作区
@@ -15,9 +15,9 @@ export const newProject = async (projectName) => {
     process.chdir(projectName);
     await pnpmInstall('@nx/angular@16.10.0', true);
     // 获取前缀
-    const compLibName = await prompt('请输入组件库的名称(回车确认)', 'ui');
-    const prefix = await prompt('请输入组件库使用的组件前缀[prefix](回车确认)', compLibName);
-    const playLibName = await prompt('请输入demo库的名称(回车确认)', 'play');
+    const compLibName = await inquire('请输入组件库的名称(回车确认)', 'ui');
+    const prefix = await inquire('请输入组件库使用的组件前缀[prefix](回车确认)', compLibName);
+    const playLibName = await inquire('请输入demo库的名称(回车确认)', 'play');
     await executeInteraction(
         `nx g @nx/angular:library ${compLibName ?? 'ui'} --buildable=true --publishable=true --prefix=${prefix ?? ''} --importPath=${projectName} --skipTests=true`
     );

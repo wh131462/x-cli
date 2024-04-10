@@ -51,7 +51,7 @@ program
     });
 
 program
-    .command('create <type> <name> [-d <directory>]')
+    .command('create <type> <name> [-d [directory]]')
     .description('Create a new component, directive, pipe, service, or documentation')
     .action((type, name, directory) => {
         logger.info(`Creating ${type} named ${name}`);
@@ -64,8 +64,7 @@ program
     });
 
 program
-    .command('remove <type> <name>')
-    .option('-d,--directory <directory>')
+    .command('remove <type> <name> [-d [directory]]')
     .description('Remove an existing component, directive, pipe, service, or documentation')
     .action((type, name, { directory }) => {
         logger.info(`Removing ${type} named ${name}`, directory);

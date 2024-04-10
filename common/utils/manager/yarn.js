@@ -1,5 +1,5 @@
 import { npmInstall } from '#common/utils/manager/npm.js';
-import { execute } from '#common/utils/node/execute.js';
+import { execute, executeInteraction } from '#common/utils/node/execute.js';
 import { nameConverter } from '#common/utils/manager/utils.js';
 
 /**
@@ -44,4 +44,13 @@ export const yarnRun = (scriptName, options = {}) => {
         .map((key) => `--${key}=${options[key]}`)
         .join(' ')}`;
     return execute(fullCommand);
+};
+
+/**
+ * yarnCreate - 类似npx
+ * @param command
+ * @returns {Promise<never>|Promise<unknown>}
+ */
+export const yarnCreate = (command) => {
+    return executeInteraction(`yarn create ${command}`);
 };

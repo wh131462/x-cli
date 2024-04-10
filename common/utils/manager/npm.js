@@ -1,7 +1,7 @@
 import { exec } from 'child_process';
 import { logger } from '#common/utils/logger.js';
 import { nameConverter } from '#common/utils/manager/utils.js';
-import { execute } from '#common/utils/node/execute.js';
+import { execute, executeInteraction } from '#common/utils/node/execute.js';
 
 /**
  * npm安装
@@ -76,4 +76,12 @@ export const npmRun = (scriptName, options = {}) => {
 export const npmHas = async (packageName, isGlobal = false) => {
     const command = `npm list ${packageName} ${isGlobal ? '-g' : ''} --depth=0`;
     return (await execute(`${command} | grep ${packageName}`))?.trim()?.includes(packageName);
+};
+/**
+ * npx
+ * @param command
+ * @returns {Promise<never>|Promise<unknown>}
+ */
+export const npx = (command) => {
+    return executeInteraction(`npx ${command}`);
 };

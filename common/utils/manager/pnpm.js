@@ -1,7 +1,7 @@
 import { exec } from 'child_process';
 import { logger } from '#common/utils/logger.js';
 import { nameConverter } from '#common/utils/manager/utils.js';
-import { execute } from '#common/utils/node/execute.js';
+import { execute, executeInteraction } from '#common/utils/node/execute.js';
 
 /**
  * pnpm安装
@@ -30,4 +30,13 @@ export const pnpmUninstall = (packageName, isGlobal = false, options = {}) => {
         .map((key) => `--${key}=${options[key]}`)
         .join(' ')}`;
     return execute(fullCommand);
+};
+
+/**
+ * pnpx
+ * @param command
+ * @returns {Promise<never>|Promise<unknown>}
+ */
+export const pnpx = (command) => {
+    return executeInteraction(`pnpx ${command}`);
 };

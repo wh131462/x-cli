@@ -7,17 +7,14 @@ import { createFile } from '#common/utils/file/create.js';
  * @param filename
  * @param config
  */
-export const writeConfig = (filename, config) => {
-    return new Promise((resolve) => {
-        let content;
-        if (typeof config === 'object' || config === null) {
-            content = JSON.stringify(config, null, 2);
-        } else {
-            content = config;
-        }
-        createFile(filename, content);
-        resolve();
-    });
+export const writeConfig = async (filename, config) => {
+    let content;
+    if (typeof config === 'object' || config === null) {
+        content = JSON.stringify(config, null, 2);
+    } else {
+        content = config;
+    }
+    await createFile(filename, content);
 };
 /**
  * 获取地址 必须是json格式

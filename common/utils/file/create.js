@@ -1,13 +1,13 @@
 import { logger } from '#common/utils/logger.js';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 
 /**
  * 创建路径 - 无视路径
  * @param path
  */
 export const createDir = (path) => {
-    logger.info(`create:${path}`);
+    if (!path) return;
+    logger.info(`creating dir:${path}`);
     mkdirSync(path, { recursive: true });
 };
 /**
@@ -17,6 +17,7 @@ export const createDir = (path) => {
  */
 export const createFile = (filePath, content) => {
     return new Promise((resolve) => {
+        logger.info(`creating file:${filePath}`);
         const dir = filePath.substring(0, filePath.lastIndexOf('/'));
         createDir(dir);
         writeFileSync(filePath, content);

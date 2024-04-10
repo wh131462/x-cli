@@ -83,5 +83,5 @@ export const npmHas = async (packageName, isGlobal = false) => {
  * @returns {Promise<never>|Promise<unknown>}
  */
 export const npx = (command) => {
-    return executeInteraction(`npx ${command}`);
+    return executeInteraction(`npx -y ${command} `);
 };

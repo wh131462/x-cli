@@ -7,6 +7,8 @@ import { logger } from '#common/utils/logger.js';
 import { plugin } from '#common/command/plugin/plugin.js';
 import { update } from '#common/command/update/update.js';
 import { newProject } from '#common/command/new/new.js';
+import { create } from '#common/command/create/create.js';
+import { remove } from '#common/command/remove/remove.js';
 
 const version = process.env.VERSION ?? DefaultVer;
 program
@@ -53,7 +55,12 @@ program
     .description('Create a new component, directive, pipe, service, or documentation')
     .action((type, name, directory) => {
         logger.info(`Creating ${type} named ${name}`);
-        // todo 调用创建组件的逻辑
+        create(type, name, directory)
+            .then(() => {
+                logger.info(`Created ${type} named ${name}.`);
+                process.exit(0);
+            })
+            .catch(() => process.exit(1));
     });
 
 program
@@ -62,7 +69,12 @@ program
     .description('Remove an existing component, directive, pipe, service, or documentation')
     .action((type, name, { directory }) => {
         logger.info(`Removing ${type} named ${name}`, directory);
-        // todo 调用移除组件的逻辑
+        remove(type, name, directory)
+            .then(() => {
+                logger.info(`Created ${type} named ${name}.`);
+                process.exit(0);
+            })
+            .catch(() => process.exit(1));
     });
 
 program

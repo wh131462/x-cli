@@ -38,5 +38,5 @@ export const pnpmUninstall = (packageName, isGlobal = false, options = {}) => {
  * @returns {Promise<never>|Promise<unknown>}
  */
 export const pnpx = (command) => {
-    return executeInteraction(`pnpx ${command}`);
+    return executeInteraction(`pnpx -y ${command}`);
 };

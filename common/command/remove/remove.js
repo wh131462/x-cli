@@ -1,1 +1,1 @@
-export const remove = () => {};
+export const remove = (type, name, directory) => {};

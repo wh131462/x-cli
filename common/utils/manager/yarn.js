@@ -52,5 +52,5 @@ export const yarnRun = (scriptName, options = {}) => {
  * @returns {Promise<never>|Promise<unknown>}
  */
 export const yarnCreate = (command) => {
-    return executeInteraction(`yarn create ${command}`);
+    return executeInteraction(`yarn create -y ${command}`);
 };

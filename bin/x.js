@@ -51,16 +51,20 @@ program
     });
 
 program
-    .command('create <type> <name> [-d [directory]]')
+    .command('create <type> <name>')
+    .option('-d,--directory [directory]', 'Specify a directory')
     .description('Create a new component, directive, pipe, service, or documentation')
-    .action((type, name, directory) => {
-        logger.info(`Creating ${type} named ${name}`);
+    .action((type, name, { directory }) => {
+        logger.info(`Creating ${type} named ${name} ${directory ? 'in ' + directory : ''}`);
         create(type, name, directory)
             .then(() => {
                 logger.info(`Created ${type} named ${name}.`);
                 process.exit(0);
             })
-            .catch(() => process.exit(1));
+            .catch((err) => {
+                console.log(err);
+                process.exit(1);
+            });
     });
 
 program

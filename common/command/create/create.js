@@ -5,6 +5,7 @@ import { directive } from '#common/command/create/templates/directive.js';
 import { pipe } from '#common/command/create/templates/pipe.js';
 import { service } from '#common/command/create/templates/service.js';
 import { doc } from '#common/command/create/templates/doc.js';
+import { calcTime } from '#common/utils/node/calcTime.js';
 
 /**
  * 创建行为
@@ -14,7 +15,7 @@ import { doc } from '#common/command/create/templates/doc.js';
  */
 export const create = async (type, name, directory) => {
     // 目录
-    const dirPath = resolve(process.cwd(), directory);
+    const dirPath = resolve(process.cwd(), directory ?? '');
     // 执行策略
     await rules[type](name, dirPath);
 };
@@ -25,11 +26,14 @@ export const create = async (type, name, directory) => {
 export const rules = {
     // 组件
     component: async (name, dir) => {
-        const baseDir = resolve(dir, name);
-        await createDir(baseDir);
-        await createTemplate(componentHTML, name, resolve(baseDir, `${name}.component.html`));
-        await createTemplate(componentSCSS, name, resolve(baseDir, `${name}.component.scss`));
-        await createTemplate(componentTS, name, resolve(baseDir, `${name}.component.ts`));
+        await calcTime(async () => {
+            const baseDir = resolve(dir, name);
+            await Promise.allSettled([
+                createTemplate(componentHTML, name, resolve(baseDir, `${name}.component.html`)),
+                createTemplate(componentSCSS, name, resolve(baseDir, `${name}.component.scss`)),
+                createTemplate(componentTS, name, resolve(baseDir, `${name}.component.ts`))
+            ]);
+        });
     },
     // 指令
     directive: async (name, dir) => {

@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import { pnpmInstall } from '#common/utils/manager/pnpm.js';
 import { createFile } from '#common/utils/file/create.js';
 import { uiStorybookMain } from '#common/command/new/templates/ui-storybook-main.js';
-import { inquire } from '#common/utils/ui/promote.js';
+import { inquire } from '#common/utils/ui/promot.js';
 
 export const newProject = async (projectName) => {
     // 执行创建工作区
@@ -91,4 +91,13 @@ export const newProject = async (projectName) => {
         'ui:publish': `pnpm build && cd dist/${projectName} && npm publish --registry https://npm.runtongqiuben.com`
     });
     await writeConfig(packageJsonPath, packageJson);
+    // 创建脚手架专用配置
+    const xConfigPath = '.xrc';
+    const xConfig = {
+        project: projectName,
+        prefix: prefix,
+        demoName: playLibName,
+        libName: compLibName
+    };
+    await writeConfig(xConfigPath, xConfig);
 };

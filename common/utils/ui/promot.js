@@ -43,7 +43,7 @@ export const inquire = (question, defaultValue = null, type = 'input', validate 
  * @param choices
  * @returns {Promise<unknown>}
  */
-export const selectList = (question, defaultValue = null, choices = []) => {
+export const select = (question, defaultValue = null, choices = []) => {
     return new Promise((resolve, reject) => {
         inquirer
             .prompt(

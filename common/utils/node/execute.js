@@ -16,8 +16,8 @@ export const execute = (command) => {
     if (!command) {
         return Promise.reject('Not a standard command.');
     }
-    logger.info(command);
-    const loader = startLoading(+'\n');
+    logger.info(command + '\n');
+    const loader = startLoading(command);
     return new Promise((resolve) => {
         exec(command, (error, stdout, stderr) => {
             if (error) resolve(false);

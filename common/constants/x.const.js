@@ -1,6 +1,5 @@
 import { PNPM_INSTALL } from '#common/utils/manager/pnpm.js';
 import { exec } from 'child_process';
-import { resolve } from 'node:path';
 import { npmInstall } from '#common/utils/manager/npm.js';
 
 export const DefaultVer = '0.0.0';

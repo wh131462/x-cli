@@ -1,30 +1,58 @@
-import { executeInteraction } from '#common/utils/node/execute.js';
+import { execute, executeInteraction } from '#common/utils/node/execute.js';
 import { npx } from '#common/utils/manager/npm.js';
 import { readConfig, writeConfig } from '#common/utils/file/writeConfig.js';
 import { resolve } from 'node:path';
 import { pnpmInstall } from '#common/utils/manager/pnpm.js';
-import { createFile } from '#common/utils/file/create.js';
+import { createDir, createFile } from '#common/utils/file/create.js';
 import { uiStorybookMain } from '#common/command/new/templates/ui-storybook-main.js';
-import { inquire } from '#common/utils/ui/promot.js';
+import { inquire, select } from '#common/utils/ui/promot.js';
+import { removeDir, removeFile } from '#common/utils/file/remove.js';
+import { defaultExport } from '#common/constants/config.js';
 
 export const newProject = async (projectName) => {
-    // 执行创建工作区
-    await npx(
-        `create-nx-workspace@16.10.0 ${projectName} --preset=apps --framework=none --packageManager=pnpm --nxCloud=skip --e2eTestRunner=none --workspaceType=integrated `
-    );
-    process.chdir(projectName);
-    await pnpmInstall('@nx/angular@16.10.0', true);
     // 获取前缀
     const compLibName = await inquire('请输入组件库的名称(回车确认)', 'ui');
     const prefix = await inquire('请输入组件库使用的组件前缀[prefix](回车确认)', compLibName);
     const playLibName = await inquire('请输入demo库的名称(回车确认)', 'play');
+    const manager = await select('选择你的包管理器(回车确认)', 'pnpm', ['pnpm', 'npm', 'yarn']);
+
+    // 执行创建工作区
+    await npx(
+        `create-nx-workspace@16.10.0 ${projectName} --preset=apps --framework=none --packageManager=${manager} --nxCloud=skip --e2eTestRunner=none --workspaceType=integrated `
+    );
+    process.chdir(projectName);
+    await pnpmInstall('@nx/angular@16.10.0', true);
+
     await executeInteraction(
-        `nx g @nx/angular:library ${compLibName ?? 'ui'} --buildable=true --publishable=true --prefix=${prefix ?? ''} --importPath=${projectName} --skipTests=true`
+        `nx g @nx/angular:library ${compLibName} --buildable=true --publishable=true --prefix=${prefix ?? ''} --importPath=${projectName} --skipTests=true`
     );
     await executeInteraction(
-        `nx g @nx/angular:storybook-configuration ${compLibName ?? 'ui'} --interactionTests=false --generateStories=false --configureStaticServe=false`
+        `nx g @nx/angular:storybook-configuration ${compLibName} --interactionTests=false --generateStories=false --configureStaticServe=false`
     );
-    await executeInteraction(`nx g @nx/angular:application ${playLibName ?? 'play'} --routing=true --standalone=true`);
+    await executeInteraction(`nx g @nx/angular:application ${playLibName} --routing=true --standalone=true`);
+    // 删除Module等无关文件
+    await removeFile(`${compLibName}/src/lib/${compLibName}.module.ts`);
+    await removeFile(`${compLibName}/src/test-setup.ts`);
+
+    // 初始化项目需要的目录结构
+    const dirs = ['components', 'directives', 'pipes'];
+    await Promise.allSettled(
+        dirs.map((dir) => {
+            const tempIndex = `${compLibName}/src/${dir}/index.ts`;
+            return writeConfig(tempIndex, defaultExport);
+        })
+    );
+    await writeConfig(
+        `${compLibName}/src/index.ts`,
+        dirs.map((dir) => `export * from "./lib/${dir}";\n`)
+    );
+    // 在demo库里创建对应的目录
+    await Promise.allSettled(
+        dirs.map((dir) => {
+            const tempDir = `${playLibName}/src/${dir}`;
+            return createDir(tempDir);
+        })
+    );
     // 添加compodoc 配置
     // 1. 添加依赖
     await pnpmInstall('@compodoc/compodoc', true);
@@ -55,11 +83,16 @@ export const newProject = async (projectName) => {
     Object.assign(projectJson.targets?.['build-storybook']?.options, compodocConfig);
     await writeConfig(projectJsonPath, projectJson);
     // 4. style 创建 styles -> [ variables,public.scss ]
-    const variablesPath = resolve(`${compLibName ?? 'ui'}/styles/variables/publish.scss`);
-    const publishScssPath = resolve(`${compLibName ?? 'ui'}/styles/publish.scss`);
+    const variablesPath = resolve(`${compLibName ?? 'ui'}/src/lib/styles/variables/public.scss`);
+    const publishScssPath = resolve(`${compLibName ?? 'ui'}/src/lib/styles/public.scss`);
     await writeConfig(variablesPath, `@mixin variables() {\n}`);
     await writeConfig(publishScssPath, `@import "./variables/public";\n@include variables();`);
-
+    // 创建document目录
+    const baseDocumentPath = resolve(`${compLibName ?? 'ui'}/src/document/readme.mdx`);
+    await createFile(
+        baseDocumentPath,
+        `import { Meta, Controls } from '@storybook/blocks';\n<Meta title="文档/README" />\n# README`
+    );
     // 5. 在 ui/.storybook/preview.ts  创建文件  ui/documentation.json
     const previewPath = `${compLibName ?? 'ui'}/.storybook/preview.ts`;
     const documentationPath = `${compLibName ?? 'ui'}/documentation.json`;
@@ -97,7 +130,10 @@ export const newProject = async (projectName) => {
         project: projectName,
         prefix: prefix,
         demoName: playLibName,
-        libName: compLibName
+        libName: compLibName,
+        manager: manager
     };
     await writeConfig(xConfigPath, xConfig);
+    // 初始化git
+    await execute(`git init && git add . && git commit -m "chore: init project ${projectName}"`);
 };

@@ -31,7 +31,6 @@ export const husky = {
             writeConfig('.husky/pre-commit', huskyConfigPrecommit),
             writeConfig('.husky/commit-msg', huskyConfigCommitMsg)
         ]) {
-            console.log(call);
         }
     },
     uninstall: () => Promise.allSettled([npmUninstall('husky'), removeDir('./husky')])

@@ -1,6 +1,11 @@
 import { resolve } from 'node:path';
 import { createDir, createFile } from '#common/utils/file/create.js';
-import { componentHTML, componentSCSS, componentTS } from '#common/command/create/templates/component.js';
+import {
+    componentHTML,
+    componentSCSS,
+    componentStory,
+    componentTS
+} from '#common/command/create/templates/component.js';
 import { directive } from '#common/command/create/templates/directive.js';
 import { pipe } from '#common/command/create/templates/pipe.js';
 import { service } from '#common/command/create/templates/service.js';
@@ -31,7 +36,8 @@ export const rules = {
             await Promise.allSettled([
                 createTemplate(componentHTML, name, resolve(baseDir, `${name}.component.html`)),
                 createTemplate(componentSCSS, name, resolve(baseDir, `${name}.component.scss`)),
-                createTemplate(componentTS, name, resolve(baseDir, `${name}.component.ts`))
+                createTemplate(componentTS, name, resolve(baseDir, `${name}.component.ts`)),
+                createTemplate(componentStory, name, resolve(baseDir, `${name}.component.ts`))
             ]);
         });
     },

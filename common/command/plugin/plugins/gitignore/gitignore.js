@@ -37,7 +37,8 @@ typings
 .DS_Store
 Thumbs.db
 yarn.lock
-package-lock.json`;
+package-lock.json
+pnpm-lock.yaml`;
 /**
  * gitignore
  * @type {IPlugin}

@@ -49,3 +49,11 @@ export const executeInteraction = (command) => {
         });
     });
 };
+/**
+ * 共同执行任务
+ * @param tasks
+ * @returns {Promise<{-readonly [P in keyof *[]]: PromiseSettledResult<Awaited<*[][P]>>}>}
+ */
+export const executeTogether = (...tasks) => {
+    return Promise.allSettled(tasks);
+};

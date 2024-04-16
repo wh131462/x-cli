@@ -4,7 +4,9 @@
     "type": "module",
     "description": "A cli for project to create all needed.",
     "bin": {
-        "x": "bin/x.js"
+        "x": "bin/x.js",
+        "xi": "bin/xi.js",
+        "xr": "bin/xr.js"
     },
     "imports": {
         "#common/*": "./common/*"

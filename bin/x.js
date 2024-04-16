@@ -81,7 +81,7 @@ program
     });
 
 program
-    .command('plugin <add|remove|list> [pluginName]')
+    .command('plugin <install|uninstall|list> [pluginName]')
     .description('Manage plugins by adding, removing, or listing them')
     .action((action, pluginName) => {
         plugin(action, pluginName)

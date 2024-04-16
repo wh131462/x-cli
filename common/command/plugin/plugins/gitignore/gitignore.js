@@ -1,7 +1,6 @@
-// 7. 创建 .gitignore 文件
 import { writeConfig } from '#common/utils/file/writeConfig.js';
-
-console.log('Creating .gitignore file...');
+import { exists } from 'node:fs';
+import { removeFile } from '#common/utils/file/remove.js';
 const gitignoreContent = `# Compiled output
 dist
 tmp
@@ -39,4 +38,12 @@ typings
 Thumbs.db
 yarn.lock
 package-lock.json`;
-writeConfig('.gitignore', gitignoreContent);
+/**
+ * gitignore
+ * @type {IPlugin}
+ */
+export const gitignore = {
+    check: () => new Promise((resolve) => exists('.gitignore', (has) => resolve(has))),
+    install: () => writeConfig('.gitignore', gitignoreContent),
+    uninstall: () => removeFile('.gitignore')
+};

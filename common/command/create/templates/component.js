@@ -5,6 +5,7 @@ export const componentSCSS = `
 @import "styles/variables/public.scss"
 `;
 export const componentTS = `
+
 @Component({
     selector:"@PREFIX-@NAME"，
     templateUrl:"./@NAME.component,html",

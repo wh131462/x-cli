@@ -1,6 +1,6 @@
 import { exec, spawn } from 'child_process';
-import { resolve } from 'node:path';
 import { logger } from '#common/utils/logger.js';
+import { startLoading } from '#common/utils/ui/loading.js';
 
 /**
  * 执行
@@ -17,12 +17,13 @@ export const execute = (command) => {
         return Promise.reject('Not a standard command.');
     }
     logger.info(command);
+    const loader = startLoading(+'\n');
     return new Promise((resolve) => {
         exec(command, (error, stdout, stderr) => {
             if (error) resolve(false);
             resolve(stdout);
         });
-    });
+    }).finally(() => loader.stop());
 };
 /**
  * 执行带交互的内容

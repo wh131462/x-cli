@@ -1,12 +1,20 @@
 import { logger } from '#common/utils/logger.js';
+import { commitLint } from '#common/command/plugin/plugins/commit-lint/commit-lint.js';
+import { eslint } from '#common/command/plugin/plugins/eslint/eslint.js';
+import { gitignore } from '#common/command/plugin/plugins/gitignore/gitignore.js';
+import { husky } from '#common/command/plugin/plugins/hsuky/husky.js';
 
 /**
  * 插件的使用
- * @param action {"add"|"remove"|"list"}
+ * @param action {"install"|"uninstall"|"list"}
  * @param pluginName {string|undefined}
  * @returns {Promise<void>}
  */
 export const plugin = async (action, pluginName) => {
+    if (!['install', 'uninstall', 'list'].includes(action)) {
+        logger.warn('Not correct action! You can use install/uninstall/list command with plugin.');
+        throw 'Not correct action.';
+    }
     if (action === 'list') {
         await list();
     } else {
@@ -15,31 +23,17 @@ export const plugin = async (action, pluginName) => {
 };
 
 const list = async () => {
-    const checks = Object.entries(plugins).map(([key, call]) => {
+    const checks = Object.keys(plugins).map((key) => {
         return (async () => {
-            const has = await call?.['check']?.();
+            logger.off();
+            const has = await plugins[key]?.['check']?.();
+            logger.on();
             logger.info(`[${has ? '+' : '-'}] ${key} - ${has ? 'installed' : 'uninstalled'}`);
         })();
     });
-    await Promise.allSettled(checks);
+    return await Promise.allSettled(checks);
 };
 /**
  * 插件列表
- * @type {{eslint: {add: ((function(): Promise<*>)|*), check: ((function(): Promise<*>)|*), remove: ((function(): Promise<*>)|*)}, comment: {add: ((function(): Promise<*>)|*), check: ((function(): Promise<*>)|*), remove: ((function(): Promise<*>)|*)}}}
  */
-const plugins = {
-    comment: {
-        check: async () => {
-            return true;
-        },
-        add: async () => {},
-        remove: async () => {}
-    },
-    eslint: {
-        check: async () => {
-            return false;
-        },
-        add: async () => {},
-        remove: async () => {}
-    }
-};
+const plugins = { commitLint, eslint, gitignore, husky };

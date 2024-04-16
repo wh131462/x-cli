@@ -6,5 +6,5 @@ Examples:
   $ x create component myComponent -d src/App
   # Remove a service
   $ x remove service myService -d src/App
-  # Add a plugin
-  $ x plugin add myPlugin`;
+  # Install a plugin
+  $ x plugin install myPlugin`;

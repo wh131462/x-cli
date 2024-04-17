@@ -3,6 +3,8 @@ import { commitLint } from '#common/command/plugin/plugins/commit-lint/commit-li
 import { eslint } from '#common/command/plugin/plugins/eslint/eslint.js';
 import { gitignore } from '#common/command/plugin/plugins/gitignore/gitignore.js';
 import { husky } from '#common/command/plugin/plugins/hsuky/husky.js';
+import { comment } from '#common/command/plugin/plugins/comment/comment.js';
+import { prettier } from '#common/command/plugin/plugins/prettier/prettier.js';
 
 /**
  * 插件的使用
@@ -36,4 +38,4 @@ const list = async () => {
 /**
  * 插件列表
  */
-const plugins = { commitLint, eslint, gitignore, husky };
+const plugins = { gitignore, comment, husky, commitLint, eslint, prettier };

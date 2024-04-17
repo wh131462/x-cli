@@ -1,5 +1,4 @@
-import { exec } from 'child_process';
-import { logger } from '#common/utils/logger.js';
+import { logger } from '#common/utils/x/logger.js';
 import { nameConverter } from '#common/utils/manager/utils.js';
 import { execute, executeInteraction } from '#common/utils/node/execute.js';
 
@@ -49,6 +48,7 @@ export const npmInstall = (packageName, isDev = false, isGlobal = false, options
  * @returns {Promise<unknown>}
  */
 export const npmUninstall = (packageName, isGlobal = false, options = {}) => {
+    if (!packageName) return Promise.reject('packageName is required');
     let command = isGlobal ? 'npm uninstall -g' : 'npm uninstall';
     const fullCommand = `${command} ${nameConverter(packageName)} ${Object.keys(options)
         .map((key) => `--${key}=${options[key]}`)
@@ -65,7 +65,7 @@ export const npmRun = (scriptName, options = {}) => {
     const fullCommand = `npm run ${scriptName} ${Object.keys(options)
         .map((key) => `--${key}=${options[key]}`)
         .join(' ')}`;
-    return execute(fullCommand);
+    return executeInteraction(fullCommand);
 };
 
 /**

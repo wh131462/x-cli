@@ -1,4 +1,4 @@
-import { logger } from '#common/utils/logger.js';
+import { logger } from '#common/utils/x/logger.js';
 
 /**
  * 计算运行时长

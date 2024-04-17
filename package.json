@@ -6,6 +6,7 @@
     "bin": {
         "x": "bin/x.js",
         "xi": "bin/xi.js",
+        "xu": "bin/xu.js",
         "xr": "bin/xr.js"
     },
     "imports": {

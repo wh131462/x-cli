@@ -6,7 +6,7 @@ import { getPackageJson } from '#common/utils/file/getPackageJson.js';
 const packageJson = getPackageJson();
 const outputDir = 'dist';
 const esbuildConfig = {
-    entryPoints: ['bin/x.js', 'bin/xi.js', 'bin/xr.js'],
+    entryPoints: ['bin/x.js', 'bin/xi.js', 'bin/xu.js', 'bin/xr.js'],
     outdir: `${outputDir}/bin`,
     platform: 'node',
     target: ['node20'],

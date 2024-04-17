@@ -1,4 +1,4 @@
-import { logger } from '#common/utils/logger.js';
+import { logger } from '#common/utils/x/logger.js';
 import { commitLint } from '#common/command/plugin/plugins/commit-lint/commit-lint.js';
 import { eslint } from '#common/command/plugin/plugins/eslint/eslint.js';
 import { gitignore } from '#common/command/plugin/plugins/gitignore/gitignore.js';

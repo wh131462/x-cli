@@ -23,6 +23,7 @@ export const yarnInstall = (packageName, isDev = false, isGlobal = false, option
     } else {
         command = 'yarn';
     }
+    if (!packageName) installType = '';
 
     const fullCommand = `${command} ${installType} ${nameConverter(packageName)} ${Object.keys(option)
         .map((key) => `--${key}=${option[key]}`)
@@ -32,6 +33,7 @@ export const yarnInstall = (packageName, isDev = false, isGlobal = false, option
 
 // 使用yarn卸载包
 export const yarnUninstall = (packageName, isGlobal = false, options = {}) => {
+    if (!packageName) return Promise.reject('packageName is required');
     let command = isGlobal ? 'yarn global remove' : 'yarn remove';
     const fullCommand = `${command} ${nameConverter(packageName)} ${Object.keys(options)
         .map((key) => `--${key}=${options[key]}`)
@@ -43,7 +45,7 @@ export const yarnRun = (scriptName, options = {}) => {
     const fullCommand = `yarn run ${scriptName} ${Object.keys(options)
         .map((key) => `--${key}=${options[key]}`)
         .join(' ')}`;
-    return execute(fullCommand);
+    return executeInteraction(fullCommand);
 };
 
 /**

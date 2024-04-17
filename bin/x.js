@@ -3,7 +3,7 @@ import { program } from 'commander';
 import { DefaultVer } from '#common/constants/x.const.js';
 import { Examples } from '#common/constants/text.js';
 import { init } from '#common/command/init/init.js';
-import { logger } from '#common/utils/logger.js';
+import { logger } from '#common/utils/x/logger.js';
 import { plugin } from '#common/command/plugin/plugin.js';
 import { update } from '#common/command/update/update.js';
 import { newProject } from '#common/command/new/new.js';

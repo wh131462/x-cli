@@ -8,7 +8,7 @@ import {
     handleStory,
     handleXrx
 } from '#common/command/new/handlers.js';
-import { logger } from '#common/utils/logger.js';
+import { logger } from '#common/utils/x/logger.js';
 
 export const newProject = async (projectName) => {
     await handlePrepare(projectName);

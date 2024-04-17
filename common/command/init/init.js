@@ -1,5 +1,5 @@
 import { cli_dependencies } from '#common/constants/x.const.js';
-import { logger } from '#common/utils/logger.js';
+import { logger } from '#common/utils/x/logger.js';
 import { execute } from '#common/utils/node/execute.js';
 import { inquire } from '#common/utils/ui/promot.js';
 

@@ -1,5 +1,5 @@
 import { exec, spawn } from 'child_process';
-import { logger } from '#common/utils/logger.js';
+import { logger } from '#common/utils/x/logger.js';
 import { startLoading } from '#common/utils/ui/loading.js';
 
 /**
@@ -16,7 +16,7 @@ export const execute = (command) => {
     if (!command) {
         return Promise.reject('Not a standard command.');
     }
-    logger.info(command + '\n');
+    logger.info(command);
     const loader = startLoading(command);
     return new Promise((resolve) => {
         exec(command, (error, stdout, stderr) => {

@@ -1,20 +1,19 @@
 #!/usr/bin/env node
 import { program } from 'commander';
 import { DefaultVer } from '#common/constants/x.const.js';
-import { xi } from '#common/command/xi/xi.js';
 import { logger } from '#common/utils/x/logger.js';
+import { xu } from '#common/command/xu/xu.js';
 
 const version = process.env.VERSION ?? DefaultVer;
 program
     .version(version)
     .arguments('[packageName]')
-    .option('-D,--save-dev', 'Save as development dependency')
-    .option('-g,--global', 'Save as global dependency')
-    .description('Install or uninstall a dependency in the project.')
-    .action((packageName, { saveDev, global }) => {
-        xi(packageName, saveDev, global)
+    .option('-g,--global', 'Uninstall the global dependency')
+    .description('Uninstall a dependency in the project.')
+    .action((packageName, { global }) => {
+        xu(packageName, global)
             .then(() => {
-                logger.info(`The ${packageName} has been installed successfully.`);
+                logger.info(`The ${packageName} has been uninstalled successfully.`);
                 process.exit(0);
             })
             .catch(() => process.exit(1));

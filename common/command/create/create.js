@@ -1,74 +1,91 @@
 import { resolve } from 'node:path';
-import { createDir, createFile } from '#common/utils/file/create.js';
-import {
-    componentHTML,
-    componentSCSS,
-    componentStory,
-    componentTS
-} from '#common/command/create/templates/component.js';
-import { directive } from '#common/command/create/templates/directive.js';
-import { pipe } from '#common/command/create/templates/pipe.js';
-import { service } from '#common/command/create/templates/service.js';
-import { doc } from '#common/command/create/templates/doc.js';
-import { calcTime } from '#common/utils/node/calcTime.js';
-import { getXConfig } from '#common/utils/x/getXConfig.js';
+import { createComponent, createComponentDemo } from '#common/command/create/templates/component.js';
+import { createService } from '#common/command/create/templates/service.js';
+import { createDoc } from '#common/command/create/templates/doc.js';
+import { getProjectNames } from '#common/utils/x/getXConfig.js';
+import { setRoot } from '#common/utils/x/setRoot.js';
+import { createDirective, createDirectiveDemo } from '#common/command/create/templates/directive.js';
 
 /**
- * 创建行为
- * @param type {"component"|"service"|"pipe"|""}
+ * 创建行为 - 默认根据规则创建 指定目录则在指定位置创建
+ * @param type {"component"|"pipe"|"directive"|"service"|"doc"}
  * @param name {string}
  * @param directory {?string}
  */
 export const create = async (type, name, directory) => {
-    // 目录
-    const dirPath = resolve(process.cwd(), directory ?? '');
-    // 执行策略
-    await rules[type](name, dirPath);
+    // 如果存在目录就直接在指定目录创建,否则在指定目录创建
+    // 指定目录的文件不会创建对应的demo 因为会被默认为子组件
+    const withDemo = !!directory && ['component', 'directive', 'pipe'].includes(type);
+    const dirPath = resolve(process.cwd(), directory);
+    await rules[type](name, dirPath, withDemo);
 };
 /**
- * 组件创建策略
+ * 创建策略
  * @type {{component: ((function(*, *): Promise<void>)|*), service: ((function(*, *): Promise<*>)|*), doc: ((function(*, *): Promise<*>)|*), pipe: ((function(*, *): Promise<*>)|*), directive: ((function(*, *): Promise<*>)|*)}}
  */
 export const rules = {
     // 组件
-    component: async (name, dir) => {
-        await calcTime(async () => {
-            const baseDir = resolve(dir, name);
-            await Promise.allSettled([
-                createTemplate(componentHTML, name, resolve(baseDir, `${name}.component.html`)),
-                createTemplate(componentSCSS, name, resolve(baseDir, `${name}.component.scss`)),
-                createTemplate(componentTS, name, resolve(baseDir, `${name}.component.ts`)),
-                createTemplate(componentStory, name, resolve(baseDir, `${name}.component.ts`))
-            ]);
-        });
+    component: async (name, dir, withDemo) => {
+        await whetherDemo(
+            withDemo,
+            async (comLibName, demoLibName) => {
+                await createComponent(name, resolve(`${comLibName}/src/lib/components`));
+                await createComponentDemo(name, resolve(`${demoLibName}/src/components`));
+            },
+            async () => {
+                await createComponent(name, dir);
+            }
+        );
     },
     // 指令
-    directive: async (name, dir) => {
-        await createTemplate(directive, name, resolve(dir, `${name}.directive.ts`));
+    directive: async (name, dir, withDemo) => {
+        await whetherDemo(
+            withDemo,
+            async (comLibName, demoLibName) => {
+                await createDirective(name, resolve(`${comLibName}/src/lib/directives`));
+                await createDirectiveDemo(name, resolve(`${demoLibName}/src/directives`));
+            },
+            async () => {
+                await createComponent(name, dir);
+            }
+        );
     },
     // 管道
-    pipe: async (name, dir) => {
-        await createTemplate(pipe, name, resolve(dir, `${name}.pipe.ts`));
+    pipe: async (name, dir, withDemo) => {
+        await whetherDemo(
+            withDemo,
+            async (comLibName, demoLibName) => {
+                await createComponent(name, resolve(`${comLibName}/src/lib/pipes`));
+                await createComponentDemo(name, resolve(`${demoLibName}/src/pipes`));
+            },
+            async () => {
+                await createComponent(name, dir);
+            }
+        );
     },
     // 服务
     service: async (name, dir) => {
-        await createTemplate(service, name, resolve(dir, `${name}.service.ts`));
+        await createService(name, dir);
     },
     // 文档
     doc: async (name, dir) => {
-        await createTemplate(doc, name, resolve(dir, `${name}.mdx`));
+        await createDoc(name, dir);
     }
 };
 /**
- * 创建模板文件
- * @param template
- * @param name
- * @param fileName
- * @returns {Promise<void>}
+ * 获取with demo的基础环境 - 高级函数
+ * @param withDemo
+ * @param callback
+ * @param withCallback
+ * @returns {Promise<*>}
  */
-export const createTemplate = async (template, name, fileName) => {
-    const config = await getXConfig();
-    console.log(config);
-    // const content = template.replaceAll('@NAME', name);
-    // await createFile(fileName, content);
+const whetherDemo = async (withDemo, callback, withCallback) => {
+    if (withDemo) {
+        await setRoot();
+        const [comLibName] = getProjectNames(config, 'component');
+        const [demoLibName] = getProjectNames(config, 'demo');
+        await withCallback(comLibName, demoLibName);
+    } else {
+        await callback();
+    }
 };

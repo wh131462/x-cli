@@ -49,4 +49,16 @@ export const getRules = (str) => {
 /**
  * tag转化
  */
-export const convert = (content) => {};
+export const convertTemplateByTags = (content, config) => {
+    return content.replace(tagReg, (matcher) => {
+        const rules = getRules(matcher);
+        const name = getName(matcher);
+        if (config[name]) {
+            return rules.reduce((prev, rule) => {
+                return tagRules[rule](prev);
+            }, config[name]);
+        } else {
+            return matcher;
+        }
+    });
+};

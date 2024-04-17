@@ -9,10 +9,11 @@ const version = process.env.VERSION ?? DefaultVer;
 program
     .version(version)
     .arguments('[script]')
+    .option('-f,--force')
     .description('Run the specified script by correctly.')
-    .action((script) => {
+    .action((script, { force }) => {
         logger.info(`The script ${script} is running...`);
-        xr(script)
+        xr(script, force)
             .then(() => {
                 logger.info(`The ${script} has been executed successfully.`);
                 process.exit(0);

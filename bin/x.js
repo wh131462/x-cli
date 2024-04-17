@@ -62,7 +62,7 @@ program
                 process.exit(0);
             })
             .catch((err) => {
-                console.log(err);
+                logger.error(err);
                 process.exit(1);
             });
     });
@@ -77,7 +77,10 @@ program
                 logger.info(`Created ${type} named ${name}.`);
                 process.exit(0);
             })
-            .catch(() => process.exit(1));
+            .catch((reason) => {
+                logger.error(reason);
+                process.exit(1);
+            });
     });
 
 program

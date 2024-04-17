@@ -32,7 +32,7 @@ export const tagReg = new RegExp(`@[0-9a-zA-Z]+(?:__(${rules.join('|')}))?`, 'im
  * @param str
  */
 export const getName = (str) => {
-    return str.toString().split('__')[0];
+    return str.toString().split('__')[0]?.toLowerCase();
 };
 /**
  * 获取规则
@@ -40,7 +40,11 @@ export const getName = (str) => {
  * @returns {string[]}
  */
 export const getRules = (str) => {
-    return str.toString().split('__').slice(1);
+    return str
+        .toString()
+        .split('__')
+        .slice(1)
+        .map((rule) => rule.toLowerCase());
 };
 /**
  * tag转化

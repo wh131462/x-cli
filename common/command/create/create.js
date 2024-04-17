@@ -11,6 +11,7 @@ import { pipe } from '#common/command/create/templates/pipe.js';
 import { service } from '#common/command/create/templates/service.js';
 import { doc } from '#common/command/create/templates/doc.js';
 import { calcTime } from '#common/utils/node/calcTime.js';
+import { getXConfig } from '#common/utils/x/getXConfig.js';
 
 /**
  * 创建行为
@@ -66,6 +67,8 @@ export const rules = {
  * @returns {Promise<void>}
  */
 export const createTemplate = async (template, name, fileName) => {
-    const content = template.replaceAll('@NAME', name);
-    await createFile(fileName, content);
+    const config = await getXConfig();
+    console.log(config);
+    // const content = template.replaceAll('@NAME', name);
+    // await createFile(fileName, content);
 };

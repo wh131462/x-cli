@@ -9,6 +9,8 @@ import { npx } from '#common/utils/manager/npm.js';
 import { executeInteraction, executeTogether } from '#common/utils/node/execute.js';
 import { existsSync } from 'node:fs';
 import { inquire } from '#common/utils/ui/promot.js';
+import { DefaultVer } from '#common/constants/x.const.js';
+import { getManager } from '#common/utils/manager/manager.js';
 
 /**
  * 预处理
@@ -29,51 +31,52 @@ export const handlePrepare = async (projectName) => {
  * 处理项目基础
  * @param projectName
  * @param prefix
- * @param manager
- * @param compLibName
+ * @param packageManager
+ * @param componentLibName
+ * @param demoLibName
  * @returns {Promise<void>}
  */
-export const handleProject = async ({ projectName, prefix, manager, compLibName, playLibName }) => {
+export const handleProject = async ({ projectName, packageManager, prefix, componentLibName, demoLibName }) => {
     await npx(
-        `create-nx-workspace@16.10.0 ${projectName} --preset=apps --framework=none --packageManager=${manager} --nxCloud=skip --e2eTestRunner=none --workspaceType=integrated `
+        `create-nx-workspace@16.10.0 ${projectName} --preset=apps --framework=none --packageManager=${packageManager} --nxCloud=skip --e2eTestRunner=none --workspaceType=integrated `
     );
     process.chdir(projectName);
-    await pnpmInstall('@nx/angular@16.10.0', true);
+    await getManager(packageManager).install('@nx/angular@16.10.0', true);
     await executeInteraction(
-        `nx g @nx/angular:library ${compLibName} --buildable=true --publishable=true --prefix=${prefix ?? ''} --importPath=${projectName} --skipTests=true`
+        `nx g @nx/angular:library ${componentLibName} --buildable=true --publishable=true --prefix=${prefix ?? ''} --importPath=${projectName} --skipTests=true`
     );
     await executeInteraction(
-        `nx g @nx/angular:storybook-configuration ${compLibName} --interactionTests=false --generateStories=false --configureStaticServe=false`
+        `nx g @nx/angular:storybook-configuration ${componentLibName} --interactionTests=false --generateStories=false --configureStaticServe=false`
     );
-    await executeInteraction(`nx g @nx/angular:application ${playLibName} --routing=true --standalone=true`);
+    await executeInteraction(`nx g @nx/angular:application ${demoLibName} --routing=true --standalone=true`);
 };
 /**
  * 对目录的处理
  */
-export const handleDirectory = async ({ compLibName, playLibName }) => {
+export const handleDirectory = async ({ componentLibName, demoLibName }) => {
     const dirs = ['components', 'directives', 'pipes'];
-    const variablesPath = resolve(`${compLibName}/src/lib/styles/variables/public.scss`);
-    const publishScssPath = resolve(`${compLibName}/src/lib/styles/public.scss`);
-    const baseDocumentPath = resolve(`${compLibName}/src/document/readme.mdx`);
-    const previewPath = `${compLibName}/.storybook/preview.ts`;
-    const documentationPath = `${compLibName}/documentation.json`;
-    const tsconfigPath = `${compLibName}/tsconfig.json`;
+    const variablesPath = resolve(`${componentLibName}/src/lib/styles/variables/public.scss`);
+    const publishScssPath = resolve(`${componentLibName}/src/lib/styles/public.scss`);
+    const baseDocumentPath = resolve(`${componentLibName}/src/document/readme.mdx`);
+    const previewPath = `${componentLibName}/.storybook/preview.ts`;
+    const documentationPath = `${componentLibName}/documentation.json`;
+    const tsconfigPath = `${componentLibName}/tsconfig.json`;
     const tsconfig = await readConfig(tsconfigPath);
     tsconfig.compilerOptions.resolveJsonModule = true;
-    const mainPath = `${compLibName}/.storybook/main.ts`;
+    const mainPath = `${componentLibName}/.storybook/main.ts`;
     await executeTogether(
-        removeFile(`${compLibName}/src/lib/${compLibName}.module.ts`),
-        removeFile(`${compLibName}/src/test-setup.ts`),
+        removeFile(`${componentLibName}/src/lib/${componentLibName}.module.ts`),
+        removeFile(`${componentLibName}/src/test-setup.ts`),
         ...dirs.map((dir) => {
-            const tempDir = `${playLibName}/src/${dir}`;
+            const tempDir = `${demoLibName}/src/${dir}`;
             return createDir(tempDir);
         }),
         ...dirs.map((dir) => {
-            const tempIndex = `${compLibName}/src/lib/${dir}/index.ts`;
+            const tempIndex = `${componentLibName}/src/lib/${dir}/index.ts`;
             return writeConfig(tempIndex, defaultExport);
         }),
         writeConfig(
-            `${compLibName}/src/index.ts`,
+            `${componentLibName}/src/index.ts`,
             dirs.reduce((reducer, dir) => (reducer += `export * from "./lib/${dir}";\n`), '')
         ),
         writeConfig(variablesPath, `@mixin variables() {\n}`),
@@ -93,16 +96,17 @@ export const handleDirectory = async ({ compLibName, playLibName }) => {
 };
 /**
  * 处理storybook
- * @param compLibName
+ * @param componentLibName
+ * @param packageManager
  * @returns {Promise<void>}
  */
-export const handleStory = async ({ compLibName }) => {
-    await pnpmInstall('@compodoc/compodoc', true);
-    const storyTsConfigPath = resolve(`${compLibName}/.storybook/tsconfig.json`);
+export const handleStory = async ({ componentLibName, packageManager }) => {
+    await getManager(packageManager).install('@compodoc/compodoc', true);
+    const storyTsConfigPath = resolve(`${componentLibName}/.storybook/tsconfig.json`);
     const tsConfigStory = await readConfig(storyTsConfigPath);
     tsConfigStory?.include?.push('../src/**/*.ts');
     await writeConfig(storyTsConfigPath, tsConfigStory);
-    const projectJsonPath = resolve(`${compLibName}/project.json`);
+    const projectJsonPath = resolve(`${componentLibName}/project.json`);
     const projectJson = await readConfig(projectJsonPath);
     const compodocConfig = {
         compodoc: true,
@@ -110,14 +114,14 @@ export const handleStory = async ({ compLibName }) => {
             '-e',
             'json',
             '-d',
-            `${compLibName}/src`,
+            `${componentLibName}/src`,
             '--u',
             '--disablePrivate',
             '--disableInternal',
             '--disableProtected',
             '--disableLifeCycleHooks'
         ],
-        styles: [`${compLibName}/src/lib/styles/public.scss`]
+        styles: [`${componentLibName}/src/lib/styles/public.scss`]
     };
     Object.assign(projectJson.targets?.['storybook'].options, compodocConfig);
     Object.assign(projectJson.targets?.['build-storybook']?.options, compodocConfig);
@@ -127,16 +131,16 @@ export const handleStory = async ({ compLibName }) => {
  * 处理package.json
  * @returns {Promise<void>}
  */
-export const handlePackageJson = async ({ projectName, playLibName, compLibName }) => {
+export const handlePackageJson = async ({ projectName, componentLibName, demoLibName }) => {
     const packageJsonPath = 'package.json';
     const packageJson = await readConfig(packageJsonPath);
     Object.assign(packageJson.scripts, {
         'fix:nx': 'rm -rf .nx && rm -rf .angular',
         'clean': 'rm -rf dist && rm -rf node_modules',
-        'play': `nx run ${playLibName ?? 'play'}:serve`,
-        'doc:serve': `nx run ${compLibName ?? 'ui'}:storybook`,
-        'doc:build': `nx run ${compLibName ?? 'ui'}:build-storybook`,
-        'ui:build': `nx run ${compLibName ?? 'ui'}:build`,
+        'play': `nx run ${demoLibName ?? 'play'}:serve`,
+        'doc:serve': `nx run ${componentLibName ?? 'ui'}:storybook`,
+        'doc:build': `nx run ${componentLibName ?? 'ui'}:build-storybook`,
+        'ui:build': `nx run ${componentLibName ?? 'ui'}:build`,
         'ui:unpublish': `npm unpublish ${projectName} --registry http://npm.runtongqiuben.com --force`,
         'ui:publish': `pnpm build && cd dist/${projectName} && npm publish --registry https://npm.runtongqiuben.com`
     });
@@ -145,20 +149,27 @@ export const handlePackageJson = async ({ projectName, playLibName, compLibName 
 /**
  * 处理xrc
  * @param projectName
- * @param manager
+ * @param packageManager
  * @param prefix
- * @param compLibName
- * @param playLibName
+ * @param componentLibName
+ * @param demoLibName
  * @returns {Promise<void>}
  */
-export const handleXrx = async ({ projectName, manager, prefix, playLibName, compLibName }) => {
+export const handleXrc = async ({ projectName, packageManager, prefix, componentLibName, demoLibName }) => {
     const xConfigPath = '.xrc';
     const xConfig = {
-        project: projectName,
+        version: process.env.VERSION ?? DefaultVer,
+        name: projectName,
         prefix: prefix,
-        demoName: playLibName,
-        libName: compLibName,
-        manager: manager
+        projects: {
+            [componentLibName]: {
+                type: 'component'
+            },
+            [demoLibName]: {
+                type: 'demo'
+            }
+        },
+        packageManager: packageManager
     };
     await writeConfig(xConfigPath, xConfig);
 };

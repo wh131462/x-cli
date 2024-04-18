@@ -18,6 +18,5 @@ export const where = async () => {
         logger.error('Not in a x project');
         throw new Error();
     }
-    logger.info(`root: ${projectRoot}`);
     return projectRoot;
 };

@@ -68,13 +68,14 @@ program
     });
 
 program
-    .command('remove <type> <name> [-d [directory]]')
+    .command('remove <type> <name>')
+    .option('-d,--directory [directory]', 'Specify a directory')
     .description('Remove an existing component, directive, pipe, service, or documentation')
     .action((type, name, { directory }) => {
         logger.info(`Removing ${type} named ${name}`, directory);
         remove(type, name, directory)
             .then(() => {
-                logger.info(`Created ${type} named ${name}.`);
+                logger.info(`Removed ${type} named ${name}.`);
                 process.exit(0);
             })
             .catch((reason) => {

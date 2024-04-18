@@ -1,4 +1,3 @@
-import { writeFileSync } from 'fs';
 import { readFileSync } from 'node:fs';
 import { createFile } from '#common/utils/file/create.js';
 

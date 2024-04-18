@@ -34,7 +34,22 @@ export const createFile = async (filePath, content) => {
  */
 export const updateFile = async (filePath, content) => {
     logger.info(`updating file:${filePath}`);
-    await appendFile(filePath, content);
+    await appendFile(filePath, '\n' + content);
+};
+/**
+ * 替换文件内容
+ * @param filePath
+ * @param search
+ * @param replace
+ * @returns {Promise<void>}
+ */
+export const replaceFile = async (filePath, search, replace) => {
+    logger.info(`replacing file:${filePath}`);
+    const content = await loadFile(filePath);
+    const newContent = content.replace(search, replace);
+    logger.off();
+    await writeFile(filePath, newContent);
+    logger.on();
 };
 /**
  * 读取文件
@@ -43,5 +58,5 @@ export const updateFile = async (filePath, content) => {
  */
 export const loadFile = async (filePath) => {
     logger.info(`loading file:${filePath}`);
-    await readFile(filePath, 'utf-8');
+    return await readFile(filePath, 'utf-8');
 };

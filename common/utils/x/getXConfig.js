@@ -35,6 +35,6 @@ export const getXConfig = async () => {
  * @returns {string[]}
  */
 export const getProjectNames = (xConfig, type) => {
-    if (!xConfig) return '';
+    if (!xConfig) return [];
     return Object.keys(xConfig.projects).filter((key) => xConfig.projects[key].type === type);
 };

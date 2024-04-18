@@ -1,4 +1,5 @@
 import { where } from '#common/utils/x/where.js';
+import { logger } from '#common/utils/x/logger.js';
 
 /**
  * 设置root
@@ -7,4 +8,5 @@ import { where } from '#common/utils/x/where.js';
 export const setRoot = async () => {
     const root = await where();
     process.chdir(root);
+    logger.info(`当前工作目录：${root}`);
 };

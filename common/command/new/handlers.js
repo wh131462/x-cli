@@ -4,7 +4,6 @@ import { createDir, createFile } from '#common/utils/file/create.js';
 import { removeFile } from '#common/utils/file/remove.js';
 import { resolve } from 'node:path';
 import { uiStorybookMain } from '#common/command/new/templates/ui-storybook-main.js';
-import { pnpmInstall } from '#common/utils/manager/pnpm.js';
 import { npx } from '#common/utils/manager/npm.js';
 import { executeInteraction, executeTogether } from '#common/utils/node/execute.js';
 import { existsSync } from 'node:fs';
@@ -100,7 +99,7 @@ export const handleDirectory = async ({ componentLibName, demoLibName }) => {
  * @param packageManager
  * @returns {Promise<void>}
  */
-export const handleStory = async ({ componentLibName, packageManager }) => {
+export const handleStory = async ({ packageManager, componentLibName }) => {
     await getManager(packageManager).install('@compodoc/compodoc', true);
     const storyTsConfigPath = resolve(`${componentLibName}/.storybook/tsconfig.json`);
     const tsConfigStory = await readConfig(storyTsConfigPath);

@@ -12,13 +12,14 @@ import { createPipe, createPipeDemo } from '#common/command/create/templates/pip
  * @param type {"component"|"pipe"|"directive"|"service"|"doc"}
  * @param name {string}
  * @param directory {?string}
+ * @param bind {?string}
  */
-export const create = async (type, name, directory) => {
+export const create = async (type, name, directory, bind) => {
     // 如果存在目录就直接在指定目录创建,否则在指定目录创建
     // 指定目录的文件不会创建对应的demo 因为会被默认为子组件
     const withDemo = !directory && ['component', 'directive', 'pipe'].includes(type);
     const dirPath = resolve(process.cwd(), directory ?? '');
-    await rules[type](name, dirPath, withDemo);
+    await rules[type](name, dirPath, withDemo, bind);
 };
 /**
  * 创建策略
@@ -26,51 +27,51 @@ export const create = async (type, name, directory) => {
  */
 const rules = {
     // 组件
-    component: async (name, dir, withDemo) => {
+    component: async (name, dir, withDemo, bind) => {
         await whetherDemo(
             withDemo,
             async (comLibName, demoLibName) => {
-                await createComponent(name, resolve(`${comLibName}/src/lib/components`), { needExport: true });
+                await createComponent(name, resolve(`${comLibName}/src/lib/components`), { bind, needExport: true });
                 await createComponentDemo(name, resolve(`${demoLibName}/src/components`));
             },
             async () => {
-                await createComponent(name, dir, { needExport: false });
+                await createComponent(name, dir, { bind, needExport: false });
             }
         );
     },
     // 指令
-    directive: async (name, dir, withDemo) => {
+    directive: async (name, dir, withDemo, bind) => {
         await whetherDemo(
             withDemo,
             async (comLibName, demoLibName) => {
-                await createDirective(name, resolve(`${comLibName}/src/lib/directives`), { needExport: true });
+                await createDirective(name, resolve(`${comLibName}/src/lib/directives`), { bind, needExport: true });
                 await createDirectiveDemo(name, resolve(`${demoLibName}/src/directives`));
             },
             async () => {
-                await createDirective(name, dir, { needExport: false });
+                await createDirective(name, dir, { bind, needExport: false });
             }
         );
     },
     // 管道
-    pipe: async (name, dir, withDemo) => {
+    pipe: async (name, dir, withDemo, bind) => {
         await whetherDemo(
             withDemo,
             async (comLibName, demoLibName) => {
-                await createPipe(name, resolve(`${comLibName}/src/lib/pipes`), { needExport: true });
+                await createPipe(name, resolve(`${comLibName}/src/lib/pipes`), { bind, needExport: true });
                 await createPipeDemo(name, resolve(`${demoLibName}/src/pipes`));
             },
             async () => {
-                await createPipe(name, dir, { needExport: false });
+                await createPipe(name, dir, { bind, needExport: false });
             }
         );
     },
     // 服务
-    service: async (name, dir) => {
-        await createService(name, dir);
+    service: async (name, dir, widthDemo, bind) => {
+        await createService(name, dir, { bind });
     },
     // 文档
-    doc: async (name, dir) => {
-        await createDoc(name, dir);
+    doc: async (name, dir, widthDemo, bind) => {
+        await createDoc(name, dir, { bind });
     }
 };
 /**

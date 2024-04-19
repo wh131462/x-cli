@@ -6,7 +6,7 @@
 对脚手架进行全局安装.
 
 ```shell
-npm i -g x-cli --registry http://npm.runtongqiuben.com
+npm i -g x-cli
 ```
 ### 使用
 
@@ -19,13 +19,13 @@ x new [项目名称]
 ### 2. 创建
 
 ```shell
-x create [component|directive|pipe|service|doc] [指定名称] [-d/--directory <directory>]
+x create [component|directive|pipe|service|doc] [指定名称] [-d/--directory <directory>] [-b/--bind <target>]
 ```
 
 ### 3. 移除
 
 ```shell
-x remove [component|directive|pipe|service|doc] [指定名称] [-d/--directory <directory>]
+x remove [component|directive|pipe|service|doc] [指定名称] [-d/--directory <directory>] [-b/--bind <target>]
 ```
 
 ### 4. 插件管理

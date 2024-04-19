@@ -5,7 +5,7 @@ import { convertTemplateByTags } from '#common/utils/tag/tag.js';
 
 export const createDirective = async (name, directory, { needExport = false } = {}) => {
     const config = await getXConfig();
-    const [project] = await getProjectNames(config, 'component');
+    const [project] = getProjectNames(config, 'component');
     const directivePath = resolve(directory, `${name}.directive.ts`);
     const directivesIndexPath = resolve(directory, 'index.ts');
     // 2. 创建文件

@@ -1,6 +1,7 @@
 import { writeConfig } from '#common/utils/file/writeConfig.js';
-import { npmHas, npmInstall, npmUninstall } from '#common/utils/manager/npm.js';
+import { npmHas } from '#common/utils/manager/npm.js';
 import { removeFile } from '#common/utils/file/remove.js';
+import { managerInstall, managerUninstall } from '#common/utils/manager/manager.js';
 
 const eslintConfig = {
     env: {
@@ -39,7 +40,7 @@ export const eslint = {
     check: () => npmHas('eslint'),
     install: () =>
         Promise.allSettled([
-            npmInstall(
+            managerInstall(
                 [
                     'eslint-plugin-unused-imports',
                     '@typescript-eslint/eslint-plugin@latest',
@@ -53,7 +54,7 @@ export const eslint = {
         ]),
     uninstall: () =>
         Promise.allSettled([
-            npmUninstall(
+            managerUninstall(
                 [
                     'eslint-plugin-unused-imports',
                     '@typescript-eslint/eslint-plugin@latest',

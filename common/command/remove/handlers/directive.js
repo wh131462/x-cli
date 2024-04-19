@@ -3,7 +3,6 @@ import { resolve } from 'node:path';
 import { removeFile } from '#common/utils/file/remove.js';
 import { replaceFile } from '#common/utils/file/create.js';
 import { convertTemplateByTags } from '#common/utils/tag/tag.js';
-import { externalPipeIndex, pipeDemoRoute, pipeDemoRouteImport } from '#common/command/create/templates/pipe.js';
 import {
     directiveDemoRoute,
     directiveDemoRouteImport,

@@ -9,6 +9,10 @@ import { update } from '#common/command/update/update.js';
 import { newProject } from '#common/command/new/new.js';
 import { create } from '#common/command/create/create.js';
 import { remove } from '#common/command/remove/remove.js';
+import { executeTogether } from '#common/utils/node/execute.js';
+import { createDir, createFile, replaceFile } from '#common/utils/file/create.js';
+import { removeFile } from '#common/utils/file/remove.js';
+import { getProjectNames, getXConfig } from '#common/utils/x/getXConfig.js';
 
 const version = process.env.VERSION ?? DefaultVer;
 program

@@ -5,11 +5,11 @@ import { convertTemplateByTags } from '#common/utils/tag/tag.js';
 
 export const createDirective = async (name, directory, { needExport = false } = {}) => {
     const config = await getXConfig();
-    const [prefix] = await getProjectNames(config, 'component');
+    const [project] = await getProjectNames(config, 'component');
     const directivePath = resolve(directory, `${name}.directive.ts`);
     const directivesIndexPath = resolve(directory, 'index.ts');
     // 2. 创建文件
-    const tags = { name, prefix };
+    const tags = { name, prefix: config.prefix, project };
     await createFile(directivePath, convertTemplateByTags(directive, tags));
     // 3. 导出
     if (needExport) await updateFile(directivesIndexPath, convertTemplateByTags(externalDirectiveIndex, tags));
@@ -49,7 +49,7 @@ import { {@NAME__CAPITAL}Directive } from "{@PROJECT}"
 @Component({
   standalone: true,
   imports: [CommonModule,FormsModule,{@NAME__CAPITAL}Directive ],
-  selector: '{@PROJECT}-{@NAME}-directive-demo',
+  selector: '{@PROJECT__KEBABCASE}-{@NAME__KEBABCASE}-directive-demo',
   template: \`
   <p>{@NAME}-directive-demo</p>
   \`,

@@ -1,6 +1,8 @@
 import { npmHas, npmInstall, npmRun, npmUninstall, npx } from '#common/utils/manager/npm.js';
 import { pnpmInstall, pnpmRun, pnpmUninstall, pnpx } from '#common/utils/manager/pnpm.js';
 import { yarnCreate, yarnInstall, yarnRun, yarnUninstall } from '#common/utils/manager/yarn.js';
+import { logger } from '#common/utils/x/logger.js';
+import { getXConfig } from '#common/utils/x/getXConfig.js';
 
 /**
  *
@@ -36,4 +38,34 @@ export const getManager = (manager) => {
                 npx: npx
             };
     }
+};
+const getCurrentManager = async () => {
+    const xConfig = await getXConfig();
+    const { packageManager } = xConfig;
+    return packageManager;
+};
+
+/**
+ * 包管理 has
+ * @param args
+ * @returns {Promise<void>}
+ */
+export const managerHas = async (...args) => {
+    await getManager(await getCurrentManager()).has(...args);
+};
+
+export const managerInstall = async (...args) => {
+    await getManager(await getCurrentManager()).install(...args);
+};
+
+export const managerUninstall = async (...args) => {
+    await getManager(await getCurrentManager()).uninstall(...args);
+};
+
+export const managerRun = async (...args) => {
+    await getManager(await getCurrentManager()).run(...args);
+};
+
+export const managerNpx = async (...args) => {
+    await getManager(await getCurrentManager()).run(...args);
 };

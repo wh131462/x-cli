@@ -16,6 +16,7 @@ export const tagRules = {
         const s = str.toString();
         return s.at(0).toUpperCase() + s.slice(1);
     },
+    // 驼峰法
     canimal: (str) => {
         return str
             .toString()
@@ -25,6 +26,12 @@ export const tagRules = {
                 return index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
             })
             .join(''); // 将数组元素连接成一个字符串
+    },
+    // 连词符法
+    kebabcase: (str) => {
+        return str
+            ?.replace(/([A-Z])/g, (match) => `-${match.toLowerCase()}`)
+            .replace(/^./, (match) => match.toLowerCase());
     }
 };
 /**
@@ -81,7 +88,7 @@ export const convertTemplateByTags = (content, config) => {
         if (getPropertyByName(config, name)) {
             return rules.reduce(
                 (prev, rule) => {
-                    return tagRules[rule](prev);
+                    return Object.hasOwn(tagRules, rule) ? tagRules[rule](prev) : prev;
                 },
                 getPropertyByName(config, name)
             );

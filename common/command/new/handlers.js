@@ -1,6 +1,6 @@
 import { readConfig, writeConfig } from '#common/utils/file/writeConfig.js';
 import { defaultExport } from '#common/constants/config.js';
-import { createDir, createFile } from '#common/utils/file/create.js';
+import { createDir, createFile, replaceFile } from '#common/utils/file/create.js';
 import { removeFile } from '#common/utils/file/remove.js';
 import { resolve } from 'node:path';
 import { uiStorybookMain } from '#common/command/new/templates/ui-storybook-main.js';
@@ -64,12 +64,9 @@ export const handleDirectory = async ({ componentLibName, demoLibName }) => {
     tsconfig.compilerOptions.resolveJsonModule = true;
     const mainPath = `${componentLibName}/.storybook/main.ts`;
     await executeTogether(
+        // library
         removeFile(`${componentLibName}/src/lib/${componentLibName}.module.ts`),
         removeFile(`${componentLibName}/src/test-setup.ts`),
-        ...dirs.map((dir) => {
-            const tempDir = `${demoLibName}/src/${dir}`;
-            return createDir(tempDir);
-        }),
         ...dirs.map((dir) => {
             const tempIndex = `${componentLibName}/src/lib/${dir}/index.ts`;
             return writeConfig(tempIndex, defaultExport);
@@ -90,7 +87,18 @@ export const handleDirectory = async ({ componentLibName, demoLibName }) => {
             `import { setCompodocJson } from '@storybook/addon-docs/angular';\nimport docJson from '../documentation.json';\nsetCompodocJson(docJson);`
         ),
         writeConfig(tsconfigPath, tsconfig),
-        createFile(mainPath, uiStorybookMain)
+        createFile(mainPath, uiStorybookMain),
+        // demo
+        ...dirs.map((dir) => {
+            const tempDir = `${demoLibName}/src/${dir}`;
+            return createDir(tempDir);
+        }),
+        removeFile(`${demoLibName}/src/app/nx-welcome.component.ts`),
+        removeFile(`${demoLibName}/src/app/app.component.spec.ts`),
+        removeFile(`${demoLibName}/src/app/app.component.css`),
+        createFile(`${demoLibName}/src/app/app.component.scss`),
+        replaceFile(`${demoLibName}/src/app/app.component.html`, '<cses-ui-nx-welcome></cses-ui-nx-welcome> ', ''),
+        replaceFile(`${demoLibName}/src/app/app.component.ts`, 'NxWelcomeComponent,', '')
     );
 };
 /**

@@ -1,7 +1,7 @@
 import { writeConfig } from '#common/utils/file/writeConfig.js';
-import { npmHas } from '#common/utils/manager/npm.js';
 import { removeFile } from '#common/utils/file/remove.js';
-import { managerInstall, managerUninstall } from '#common/utils/manager/manager.js';
+import { managerHas, managerInstall, managerUninstall } from '#common/utils/manager/manager.js';
+import { executeTogether } from '#common/utils/node/execute.js';
 
 const eslintConfig = {
     env: {
@@ -37,9 +37,9 @@ const eslintConfig = {
  * @type {IPlugin}
  * */
 export const eslint = {
-    check: () => npmHas('eslint'),
+    check: () => managerHas('eslint'),
     install: () =>
-        Promise.allSettled([
+        executeTogether(
             managerInstall(
                 [
                     'eslint-plugin-unused-imports',
@@ -51,19 +51,16 @@ export const eslint = {
                 true
             ),
             writeConfig('.eslintrc', eslintConfig)
-        ]),
+        ),
     uninstall: () =>
-        Promise.allSettled([
-            managerUninstall(
-                [
-                    'eslint-plugin-unused-imports',
-                    '@typescript-eslint/eslint-plugin@latest',
-                    '@typescript-eslint/parser@latest',
-                    'eslint@latest',
-                    'eslint-config-prettier'
-                ],
-                true
-            ),
+        executeTogether(
+            managerUninstall([
+                'eslint-plugin-unused-imports',
+                '@typescript-eslint/eslint-plugin@latest',
+                '@typescript-eslint/parser@latest',
+                'eslint@latest',
+                'eslint-config-prettier'
+            ]),
             removeFile('.eslintrc')
-        ])
+        )
 };

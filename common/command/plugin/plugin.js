@@ -5,6 +5,8 @@ import { gitignore } from '#common/command/plugin/plugins/gitignore/gitignore.js
 import { husky } from '#common/command/plugin/plugins/hsuky/husky.js';
 import { comment } from '#common/command/plugin/plugins/comment/comment.js';
 import { prettier } from '#common/command/plugin/plugins/prettier/prettier.js';
+import { executeTogether } from '#common/utils/node/execute.js';
+import { lintStaged } from '#common/command/plugin/plugins/lint-staged/lint-staged.js';
 
 /**
  * 插件的使用
@@ -20,16 +22,15 @@ export const plugin = async (action, pluginName) => {
     if (action === 'list') {
         await list();
     } else {
-        await plugins?.[pluginName]?.[action]?.();
+        if (pluginName) await plugins?.[pluginName]?.[action]?.();
+        else await executeTogether(...Object.keys(plugins).map((key) => plugins[key][action]()));
     }
 };
 
 const list = async () => {
     const checks = Object.keys(plugins).map((key) => {
         return (async () => {
-            logger.off();
             const has = await plugins[key]?.['check']?.();
-            logger.on();
             logger.info(`[${has ? '+' : '-'}] ${key} - ${has ? 'installed' : 'uninstalled'}`);
         })();
     });
@@ -38,4 +39,4 @@ const list = async () => {
 /**
  * 插件列表
  */
-const plugins = { gitignore, comment, husky, commitLint, eslint, prettier };
+const plugins = { gitignore, comment, lintStaged, husky, commitLint, eslint, prettier };

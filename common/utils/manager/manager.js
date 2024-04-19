@@ -1,7 +1,6 @@
 import { npmHas, npmInstall, npmRun, npmUninstall, npx } from '#common/utils/manager/npm.js';
 import { pnpmInstall, pnpmRun, pnpmUninstall, pnpx } from '#common/utils/manager/pnpm.js';
 import { yarnCreate, yarnInstall, yarnRun, yarnUninstall } from '#common/utils/manager/yarn.js';
-import { logger } from '#common/utils/x/logger.js';
 import { getXConfig } from '#common/utils/x/getXConfig.js';
 
 /**
@@ -39,6 +38,10 @@ export const getManager = (manager) => {
             };
     }
 };
+/**
+ * 获取当前的manager
+ * @returns {Promise<string>}
+ */
 const getCurrentManager = async () => {
     const xConfig = await getXConfig();
     const { packageManager } = xConfig;

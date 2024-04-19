@@ -1,5 +1,5 @@
 import { rootPath } from '#common/utils/file/path.js';
-import { copyFile, readdir, rm } from 'node:fs/promises';
+import { copyFile, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import { logger } from '#common/utils/x/logger.js';

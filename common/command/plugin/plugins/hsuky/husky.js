@@ -1,9 +1,8 @@
 // 6. 安装 husky
 import { writeConfig } from '#common/utils/file/writeConfig.js';
-import { npmHas } from '#common/utils/manager/npm.js';
 import { removeDir } from '#common/utils/file/remove.js';
-import { managerInstall, managerUninstall } from '#common/utils/manager/manager.js';
-import { execute } from '#common/utils/node/execute.js';
+import { managerHas, managerInstall, managerUninstall } from '#common/utils/manager/manager.js';
+import { execute, executeTogether } from '#common/utils/node/execute.js';
 
 // 生成 husky 配置文件
 const huskyConfigPrecommit = `#!/usr/bin/env sh
@@ -24,12 +23,12 @@ npx --no -- commitlint --edit \$1`;
  * @type {IPlugin}
  */
 export const husky = {
-    check: () => npmHas('husky'),
+    check: () => managerHas('husky'),
     install: async () => {
         await managerInstall('husky', true);
         await execute('npx husky init');
         await writeConfig('.husky/pre-commit', huskyConfigPrecommit);
         await writeConfig('.husky/commit-msg', huskyConfigCommitMsg);
     },
-    uninstall: () => Promise.allSettled([managerUninstall('husky'), removeDir('./husky')])
+    uninstall: () => executeTogether(managerUninstall('husky'), removeDir('./husky'))
 };

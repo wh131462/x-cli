@@ -1,7 +1,7 @@
 import { writeConfig } from '#common/utils/file/writeConfig.js';
-import { npmHas, npmInstall, npmUninstall } from '#common/utils/manager/npm.js';
 import { removeFile } from '#common/utils/file/remove.js';
 import { managerHas, managerInstall, managerUninstall } from '#common/utils/manager/manager.js';
+import { executeTogether } from '#common/utils/node/execute.js';
 
 const prettierConfig = {
     singleQuote: true,
@@ -25,6 +25,6 @@ const prettierConfig = {
  */
 export const prettier = {
     check: () => managerHas('prettier'),
-    install: () => Promise.allSettled([managerInstall('prettier', true), writeConfig('.prettierrc', prettierConfig)]),
-    uninstall: () => Promise.allSettled([managerUninstall('prettier', true), removeFile('.prettierrc')])
+    install: () => executeTogether(managerInstall('prettier', true), writeConfig('.prettierrc', prettierConfig)),
+    uninstall: () => executeTogether(managerUninstall('prettier'), removeFile('.prettierrc'))
 };

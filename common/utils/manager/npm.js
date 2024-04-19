@@ -75,7 +75,9 @@ export const npmRun = (scriptName, options = {}) => {
  */
 export const npmHas = async (packageName, isGlobal = false) => {
     const command = `npm list ${nameConverter(packageName)} ${isGlobal ? '-g' : ''} --depth=0`;
+    logger.off();
     const res = await execute(`${command} | grep ${packageName}`);
+    logger.on();
     return typeof res === 'boolean' ? res : res.toString()?.trim()?.includes(packageName);
 };
 /**

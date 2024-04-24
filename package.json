@@ -1,5 +1,5 @@
 {
-    "name": "x-cli",
+    "name": "@eh/x-cli",
     "version": "1.0.0",
     "type": "module",
     "description": "A cli for project to create all needed.",
@@ -14,7 +14,7 @@
     },
     "scripts": {
         "build": "node esbuild.config.js",
-        "publish": "cd dist && npm publish ",
+        "publish_": "npm run build && cd ./dist && npm publish",
         "prepare": "husky",
         "commit": "cz"
     },

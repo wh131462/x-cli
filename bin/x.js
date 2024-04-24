@@ -90,7 +90,6 @@ program
 
 program
     .command('plugin <install|uninstall|list> [pluginName]')
-    .version(version)
     .description('Manage plugins by adding, removing, or listing them')
     .action((action, pluginName) => {
         plugin(action, pluginName)
@@ -103,7 +102,6 @@ program
 
 program
     .command('update')
-    .version(version)
     .description('Update x-cli to lts.')
     .action(() => {
         logger.info(`Updating...`);
@@ -112,7 +110,9 @@ program
                 logger.info(`Updated.`);
                 process.exit(0);
             })
-            .catch(() => process.exit(1));
+            .catch(() => {
+                process.exit(1);
+            });
     });
 
 program.parse(process.argv);

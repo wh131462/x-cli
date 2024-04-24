@@ -2,6 +2,7 @@ import { setRoot } from '#common/utils/x/setRoot.js';
 import { readConfig } from '#common/utils/file/writeConfig.js';
 import { getManager } from '#common/utils/manager/manager.js';
 import { logger } from '#common/utils/x/logger.js';
+a;
 
 /**
  * 卸载

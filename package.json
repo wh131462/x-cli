@@ -14,7 +14,8 @@
     },
     "scripts": {
         "build": "node esbuild.config.js",
-        "publish_": "npm run build && cd ./dist && npm publish",
+        "cli:publish": "npm run build && cd ./dist && npm publish",
+        "cli:unpublish": "npm unpublish --force @eh/x-cli",
         "prepare": "husky",
         "commit": "cz"
     },

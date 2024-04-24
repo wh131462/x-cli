@@ -3,5 +3,5 @@ import { getPackageJson } from '#common/utils/file/getPackageJson.js';
 
 export const update = async () => {
     const { name } = await getPackageJson();
-    return npmInstall(name, false, true);
+    await npmInstall(name, false, true);
 };

@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { createFile } from '#common/utils/file/create.js';
+import { createFile, loadFile } from '#common/utils/file/create.js';
 
 /**
  * 创建文件
@@ -20,8 +20,11 @@ export const writeConfig = async (filename, config) => {
  * @param filename
  * @returns {Promise<*>}
  */
-export const readConfig = (filename) => {
-    return new Promise((resolve) => {
-        resolve(JSON.parse(readFileSync(filename, 'utf-8')));
-    });
+export const readConfig = async (filename) => {
+    if (!filename) {
+        console.log('请输入文件名');
+        return null;
+    }
+    const config = await loadFile(filename);
+    return JSON.parse(config);
 };

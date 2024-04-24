@@ -45,9 +45,6 @@ Examples:
   # Uninstall a global dependency
   $ xu myDependency -g
 
-  # Run a script with force
-  $ xr myScript -f
-
-  # Run a script without force
-  $ xr myScript
+  # Run a script
+  $ xr build
 `;

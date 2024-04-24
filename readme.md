@@ -54,9 +54,9 @@ xu [packageName] [-g]
 
 ### 运行脚本
 ```shell
-xr [script] [-f]
+xr [script]
 ```
-运行指定的脚本。如果使用 `-f` 或 `--force`，则强制执行。
+运行指定的脚本。
 
 ### 查看文档
 ```shell

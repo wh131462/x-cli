@@ -53,10 +53,16 @@ xu [packageName] [-g]
 `xi` 用于安装或卸载项目的依赖，`xu` 用于卸载全局依赖。
 
 ### 运行脚本
-```bash
+```shell
 xr [script] [-f]
 ```
 运行指定的脚本。如果使用 `-f` 或 `--force`，则强制执行。
+
+### 查看文档
+```shell
+x doc
+```
+查看x-cli的文档内容。
 
 ## 构建与发布
 ```bash

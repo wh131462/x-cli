@@ -9,10 +9,9 @@ import { update } from '#common/command/update/update.js';
 import { newProject } from '#common/command/new/new.js';
 import { create } from '#common/command/create/create.js';
 import { remove } from '#common/command/remove/remove.js';
-import { executeTogether } from '#common/utils/node/execute.js';
-import { createDir, createFile, replaceFile } from '#common/utils/file/create.js';
-import { removeFile } from '#common/utils/file/remove.js';
-import { getProjectNames, getXConfig } from '#common/utils/x/getXConfig.js';
+import { loadFile } from '#common/utils/file/create.js';
+import { resolve } from 'node:path';
+import { rootPath } from '#common/utils/file/path.js';
 
 const version = process.env.VERSION ?? DefaultVer;
 program
@@ -114,6 +113,18 @@ program
             .catch(() => {
                 process.exit(1);
             });
+    });
+// doc
+program
+    .command('doc')
+    .description('Display the documentation.')
+    .action(() => {
+        logger.off();
+        loadFile(resolve(rootPath, 'readme.md')).then((content) => {
+            logger.on();
+            console.log(content);
+            process.exit(0);
+        });
     });
 
 program.parse(process.argv);

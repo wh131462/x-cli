@@ -24,6 +24,7 @@ program
     })
     .on('--help', () => {
         console.log(Examples);
+        process.exit(0);
     });
 
 // 初始化
@@ -114,17 +115,20 @@ program
                 process.exit(1);
             });
     });
+
 // doc
 program
     .command('doc')
     .description('Display the documentation.')
     .action(() => {
         logger.off();
-        loadFile(resolve(rootPath, 'readme.md')).then((content) => {
-            logger.on();
-            console.log(content);
-            process.exit(0);
-        });
+        loadFile(resolve(rootPath, 'readme.md'))
+            .then((content) => {
+                logger.on();
+                console.log(content);
+                process.exit(0);
+            })
+            .catch(() => process.exit(1));
     });
 
 program.parse(process.argv);

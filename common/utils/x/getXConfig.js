@@ -25,8 +25,12 @@ import { resolve } from 'node:path';
  * @returns {Promise<IXrc>}
  */
 export const getXConfig = async () => {
-    const root = await where();
-    return await readConfig(resolve(root, '.xrc'));
+    try {
+        const root = await where();
+        return await readConfig(resolve(root, '.xrc'));
+    } catch (e) {
+        return {};
+    }
 };
 /**
  * 获取指定类型的项目名称列表

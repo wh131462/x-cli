@@ -7,5 +7,9 @@ import { readFileSync } from 'node:fs';
  * @type {any}
  */
 export const getPackageJson = () => {
-    return JSON.parse(readFileSync(resolve(rootPath, 'package.json'), 'utf-8'));
+    try {
+        return JSON.parse(readFileSync(resolve(rootPath, 'package.json'), 'utf-8'));
+    } catch (e) {
+        return {};
+    }
 };

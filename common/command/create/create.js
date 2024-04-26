@@ -6,6 +6,7 @@ import { getProjectNames, getXConfig } from '#common/utils/x/getXConfig.js';
 import { setRoot } from '#common/utils/x/setRoot.js';
 import { createDirective, createDirectiveDemo } from '#common/command/create/templates/directive.js';
 import { createPipe, createPipeDemo } from '#common/command/create/templates/pipe.js';
+import { inX, where } from '#common/utils/x/where.js';
 
 /**
  * 创建行为 - 默认根据规则创建 指定目录则在指定位置创建
@@ -17,6 +18,9 @@ import { createPipe, createPipeDemo } from '#common/command/create/templates/pip
 export const create = async (type, name, directory, bind) => {
     // 如果存在目录就直接在指定目录创建,否则在指定目录创建
     // 指定目录的文件不会创建对应的demo 因为会被默认为子组件
+    if (!(await inX())) {
+        throw new Error('当前项目不是 x 项目');
+    }
     const withDemo = !directory && ['component', 'directive', 'pipe'].includes(type);
     const dirPath = resolve(process.cwd(), directory ?? '');
     await rules[type](name, dirPath, withDemo, bind);

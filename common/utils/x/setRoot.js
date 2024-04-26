@@ -6,7 +6,9 @@ import { logger } from '#common/utils/x/logger.js';
  * @returns {Promise<void>}
  */
 export const setRoot = async () => {
-    const root = await where();
-    process.chdir(root);
-    logger.info(`当前工作目录：${root}`);
+    try {
+        const root = await where();
+        process.chdir(root);
+        logger.info(`当前工作目录：${root}`);
+    } catch {}
 };

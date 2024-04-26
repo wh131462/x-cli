@@ -1,8 +1,10 @@
 import chalk from 'chalk';
 import { env } from '#common/utils/node/env.js';
+import { createEnum } from '#common/utils/node/enum.js';
 
 class LOGGER {
-    _logo = (type) => chalk.bgBlueBright(chalk.whiteBright(` x-cli => ${type} `));
+    _TypeBg = createEnum(['info', 'bgBlueBright'], ['warn', 'bgYellow'], ['error', 'bgRedBright']);
+    _logo = (type) => chalk.bgBlueBright(chalk[this._TypeBg[type]](` x-cli => ${type} `));
     isOn = true;
 
     constructor(_env) {}
@@ -42,7 +44,7 @@ class LOGGER {
      */
     warn(message, ...args) {
         if (this.forbidden) return;
-        console.log(this._logo('warn'), chalk.bgYellowBright(message, ...args));
+        console.log(this._logo('warn'), message, ...args);
     }
 
     /**
@@ -52,7 +54,7 @@ class LOGGER {
      */
     error(message, ...args) {
         if (this.forbidden) return;
-        console.log(this._logo('error'), chalk.bgRedBright(message, ...args));
+        console.log(this._logo('error'), message, ...args);
     }
 }
 

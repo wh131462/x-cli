@@ -1,6 +1,6 @@
-import { dirname } from 'node:path';
 import { logger } from '#common/utils/x/logger.js';
-import { readdirSync } from 'node:fs';
+import { dirname, sep } from 'path';
+import { readdir } from 'node:fs/promises';
 
 /**
  * where
@@ -8,16 +8,34 @@ import { readdirSync } from 'node:fs';
  */
 export const where = async () => {
     let projectRoot = process.cwd();
-    while (projectRoot !== '/') {
-        if (readdirSync(projectRoot).includes('.xrc')) {
-            break;
+    try {
+        while (projectRoot !== sep) {
+            // 使用 path.sep 获取系统特定的路径分隔符
+            const files = await readdir(projectRoot);
+            if (files.includes('.xrc')) {
+                break;
+            }
+            projectRoot = dirname(projectRoot); // 使用 path.dirname 获取上级目录
         }
-        projectRoot = dirname(projectRoot);
+        if (projectRoot === sep) {
+            new Error('Not in a x project.');
+        }
+        return projectRoot;
+    } catch (error) {
+        // 处理文件系统读取失败的错误
+        logger.error(error);
+        throw error;
     }
-    if (projectRoot === '/') {
-        const warn = 'Not in a x project';
-        logger.warn(warn);
-        throw new Error(warn);
+};
+/**
+ * 是否在  x 项目
+ * @returns {Promise<boolean>}
+ */
+export const inX = async () => {
+    try {
+        const projectRoot = await where();
+        return projectRoot !== '/';
+    } catch (e) {
+        return false;
     }
-    return projectRoot;
 };

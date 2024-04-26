@@ -13,6 +13,8 @@
         "#common/*": "./common/*"
     },
     "scripts": {
+        "dev": "npm link",
+        "dev:quit": "npm unlink @eh/x-cli  && npm uninstall -g @eh/x-cli",
         "build": "node esbuild.config.js",
         "cli:publish": "npm run build && cd ./dist && npm publish",
         "cli:publish:update": "npm version patch && npm run cli:publish",

@@ -23,7 +23,7 @@ program
         process.exit(1);
     })
     .on('--help', () => {
-        logger.info(Examples);
+        console.log(Examples);
         process.exit(0);
     });
 
@@ -125,7 +125,7 @@ program
         loadFile(resolve(rootPath, 'readme.md'))
             .then((content) => {
                 logger.on();
-                logger.info(content);
+                console.info(content);
                 process.exit(0);
             })
             .catch(() => process.exit(1));

@@ -29,32 +29,29 @@ class LOGGER {
 
     /**
      * 普通消息
-     * @param message{*}
-     * @param args{*[]}
+     * @param messages
      */
-    info(message, ...args) {
+    info(...messages) {
         if (this.forbidden) return;
-        console.log(this._logo('info'), chalk.whiteBright(message, ...args));
+        console.log(this._logo('info'), ...messages);
     }
 
     /**
      * 警告
-     * @param message{*}
-     * @param args{*[]}
+     * @param messages
      */
-    warn(message, ...args) {
+    warn(...messages) {
         if (this.forbidden) return;
-        console.log(this._logo('warn'), message, ...args);
+        console.log(this._logo('warn'), ...messages);
     }
 
     /**
      * 错误信息
-     * @param message{*}
-     * @param args{*[]}
+     * @param messages
      */
-    error(message, ...args) {
+    error(...messages) {
         if (this.forbidden) return;
-        console.log(this._logo('error'), message, ...args);
+        console.log(this._logo('error'), ...messages);
     }
 }
 

@@ -5,8 +5,15 @@ import { removeDirective, removeDirectiveDemo } from '#common/command/remove/han
 import { removePipe, removePipeDemo } from '#common/command/remove/handlers/pipe.js';
 import { removeDoc } from '#common/command/remove/handlers/doc.js';
 import { removeService } from '#common/command/remove/handlers/service.js';
+import { inX } from '#common/utils/x/where.js';
+import { logger } from '#common/utils/x/logger.js';
 
 export const remove = async (type, name, directory) => {
+    if (!(await inX())) {
+        const warn = '当前项目不是 x 项目';
+        logger.warn(warn);
+        throw new Error(warn);
+    }
     const withDemo = !directory && ['component', 'directive', 'pipe'].includes(type);
     const dirPath = resolve(process.cwd(), directory ?? '');
     await rules[type](name, dirPath, withDemo);

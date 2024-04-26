@@ -66,8 +66,7 @@ program
                 logger.info(`Created ${type} named ${name}.`);
                 process.exit(0);
             })
-            .catch((err) => {
-                logger.error(err);
+            .catch(() => {
                 process.exit(1);
             });
     });
@@ -83,8 +82,7 @@ program
                 logger.info(`Removed ${type} named ${name}.`);
                 process.exit(0);
             })
-            .catch((reason) => {
-                logger.error(reason);
+            .catch(() => {
                 process.exit(1);
             });
     });

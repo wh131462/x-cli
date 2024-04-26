@@ -15,8 +15,9 @@ export const where = async () => {
         projectRoot = dirname(projectRoot);
     }
     if (projectRoot === '/') {
-        logger.error('Not in a x project');
-        throw new Error();
+        const warn = 'Not in a x project';
+        logger.warn(warn);
+        throw new Error(warn);
     }
     return projectRoot;
 };

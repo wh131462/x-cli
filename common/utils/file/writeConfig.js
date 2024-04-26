@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { createFile, loadFile } from '#common/utils/file/create.js';
+import { logger } from '#common/utils/x/logger.js';
 
 /**
  * 创建文件
@@ -22,7 +23,7 @@ export const writeConfig = async (filename, config) => {
  */
 export const readConfig = async (filename) => {
     if (!filename) {
-        console.log('请输入文件名');
+        logger.warn('请输入文件名');
         return null;
     }
     const config = await loadFile(filename);

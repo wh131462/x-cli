@@ -19,11 +19,11 @@ program
     .description(`A cli for any create standard project.`)
     .allowUnknownOption() // 允许未知选项，以便我们可以捕获自定义命令
     .on('command:*', (cmd) => {
-        console.error(`Invalid command: ${cmd}`);
+        logger.error(`Invalid command: ${cmd}`);
         process.exit(1);
     })
     .on('--help', () => {
-        console.log(Examples);
+        logger.info(Examples);
         process.exit(0);
     });
 
@@ -125,7 +125,7 @@ program
         loadFile(resolve(rootPath, 'readme.md'))
             .then((content) => {
                 logger.on();
-                console.log(content);
+                logger.info(content);
                 process.exit(0);
             })
             .catch(() => process.exit(1));

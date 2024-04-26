@@ -2,7 +2,9 @@ import chalk from 'chalk';
 import { env } from '#common/utils/node/env.js';
 
 class LOGGER {
+    _logo = (type) => chalk.bgBlueBright(chalk.whiteBright(` x-cli => ${type} `));
     isOn = true;
+
     constructor(_env) {}
 
     /**
@@ -30,7 +32,7 @@ class LOGGER {
      */
     info(message, ...args) {
         if (this.forbidden) return;
-        console.log(chalk.whiteBright(message, ...args));
+        console.log(this._logo('info'), chalk.whiteBright(message, ...args));
     }
 
     /**
@@ -40,7 +42,7 @@ class LOGGER {
      */
     warn(message, ...args) {
         if (this.forbidden) return;
-        console.log(chalk.yellowBright(message, ...args));
+        console.log(this._logo('warn'), chalk.bgYellowBright(message, ...args));
     }
 
     /**
@@ -50,7 +52,8 @@ class LOGGER {
      */
     error(message, ...args) {
         if (this.forbidden) return;
-        console.log(chalk.redBright(message, ...args));
+        console.log(this._logo('error'), chalk.bgRedBright(message, ...args));
     }
 }
+
 export const logger = new LOGGER(env());

@@ -4,6 +4,7 @@ import esbuild from 'esbuild';
 import { rootPath } from '#common/utils/file/path.js';
 import { getPackageJson } from '#common/utils/file/getPackageJson.js';
 import { executeTogether } from '#common/utils/node/execute.js';
+import { logger } from '#common/utils/x/logger.js';
 
 const packageJson = getPackageJson();
 const outputDir = 'dist';
@@ -77,7 +78,7 @@ async function copyResources() {
             )
         );
     } catch (error) {
-        console.error('An error occurred while copying resources:', error);
+        logger.error('An error occurred while copying resources:', error);
         throw error;
     }
 }
@@ -92,7 +93,7 @@ async function main() {
         await afterBuild();
         process.exit(0);
     } catch (e) {
-        console.log(e);
+        logger.info(e);
         process.exit(1);
     }
 }

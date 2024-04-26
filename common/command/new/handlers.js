@@ -9,7 +9,7 @@ import { executeInteraction, executeTogether } from '#common/utils/node/execute.
 import { existsSync } from 'node:fs';
 import { inquire } from '#common/utils/ui/promot.js';
 import { DefaultVer } from '#common/constants/x.const.js';
-import { getManager } from '#common/utils/manager/manager.js';
+import { getManagerByName } from '#common/utils/manager/manager.js';
 
 /**
  * 预处理
@@ -40,7 +40,7 @@ export const handleProject = async ({ projectName, packageManager, prefix, compo
         `create-nx-workspace@16.10.0 ${projectName} --preset=apps --framework=none --packageManager=${packageManager} --nxCloud=skip --e2eTestRunner=none --workspaceType=integrated `
     );
     process.chdir(projectName);
-    await getManager(packageManager).install('@nx/angular@16.10.0', true);
+    await getManagerByName(packageManager).install('@nx/angular@16.10.0', true);
     await executeInteraction(
         `nx g @nx/angular:library ${componentLibName} --buildable=true --publishable=true --prefix=${prefix ?? ''} --importPath=${projectName} --skipTests=true`
     );
@@ -108,7 +108,7 @@ export const handleDirectory = async ({ componentLibName, demoLibName }) => {
  * @returns {Promise<void>}
  */
 export const handleStory = async ({ packageManager, componentLibName }) => {
-    await getManager(packageManager).install('@compodoc/compodoc', true);
+    await getManagerByName(packageManager).install('@compodoc/compodoc', true);
     const storyTsConfigPath = resolve(`${componentLibName}/.storybook/tsconfig.json`);
     const tsConfigStory = await readConfig(storyTsConfigPath);
     tsConfigStory?.include?.push('../src/**/*.ts');

@@ -56,7 +56,7 @@ export const getManagerNameByX = async () => {
 };
 /**
  * 根据锁文件获取当前的包管理器
- * @returns {Promise<void>}
+ * @returns {Promise<string>}
  */
 export const getManagerNameByLock = async () => {
     const lockDirectory = await readdir(resolve('.'));
@@ -70,12 +70,14 @@ export const getManagerNameByLock = async () => {
 };
 /**
  * 无论如何都获取一个manager
- * @returns {Promise<void>}
+ * @returns {Promise<string|undefined>}
  */
 export const getManagerName = async () => {
     const managerName = await getManagerNameByX();
     if (!managerName) {
         return await getManagerNameByLock();
+    } else {
+        return managerName;
     }
 };
 

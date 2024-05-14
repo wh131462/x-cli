@@ -14,7 +14,7 @@ program
     .action((packageName, { saveDev, global }) => {
         xi(packageName, saveDev, global)
             .then(() => {
-                logger.info(`The ${packageName} has been installed successfully.`);
+                logger.info(`The ${packageName ?? 'packages'} has been installed successfully.`);
                 process.exit(0);
             })
             .catch(() => process.exit(1));

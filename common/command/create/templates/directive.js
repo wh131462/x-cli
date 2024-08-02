@@ -28,7 +28,7 @@ export const createDirectiveDemo = async (name, directory) => {
 export const directive = `import { Directive } from '@angular/core';
 
 @Directive({
-  selector: '[{@PREFIX__CANIMAL}{@NAME__CAPITAL}]',
+  selector: '[{@PREFIX__CAMEL}{@NAME__CAPITAL}]',
   standalone: true,
 })
 export class {@NAME__CAPITAL}Directive {

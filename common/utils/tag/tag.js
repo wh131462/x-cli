@@ -1,3 +1,6 @@
+import { camel } from '#common/utils/string/camel.js';
+import { kebabcase } from '#common/utils/string/kebabcase.js';
+
 /**
  * tag处理策略 - 处理不同的功能函数
  * @type {{upper: (function(*): string), lower: (function(*): string)}}
@@ -17,22 +20,9 @@ export const tagRules = {
         return s.at(0).toUpperCase() + s.slice(1);
     },
     // 驼峰法
-    canimal: (str) => {
-        return str
-            .toString()
-            .split('-') // 将字符串以连字符为分隔符分割成数组
-            .map((word, index) => {
-                // 捕获第一个单词，保持其小写，其余单词转成大写
-                return index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-            })
-            .join(''); // 将数组元素连接成一个字符串
-    },
+    camel: camel,
     // 连词符法
-    kebabcase: (str) => {
-        return str
-            ?.replace(/([A-Z])/g, (match) => `-${match.toLowerCase()}`)
-            .replace(/^./, (match) => match.toLowerCase());
-    }
+    kebabcase: kebabcase
 };
 /**
  * 所有可用规则

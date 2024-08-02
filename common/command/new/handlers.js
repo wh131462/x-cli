@@ -10,6 +10,7 @@ import { existsSync } from 'node:fs';
 import { inquire } from '#common/utils/ui/promot.js';
 import { DefaultVer } from '#common/constants/x.const.js';
 import { getManagerByName } from '#common/utils/manager/manager.js';
+import { kebabcase } from '#common/utils/string/kebabcase.js';
 
 /**
  * 预处理
@@ -40,7 +41,12 @@ export const handleProject = async ({ projectName, packageManager, prefix, compo
         `create-nx-workspace@16.10.0 ${projectName} --preset=apps --framework=none --packageManager=${packageManager} --nxCloud=skip --e2eTestRunner=none --workspaceType=integrated `
     );
     process.chdir(projectName);
-    await getManagerByName(packageManager).install('@nx/angular@16.10.0', true);
+    const manager = getManagerByName(packageManager);
+    await manager.install('@nx/angular@16.10.0', true);
+    // 防御性校验 - 安装nx
+    if (!(await manager.has('nx', true))) {
+        await manager.install('nx', true);
+    }
     await executeInteraction(
         `nx g @nx/angular:library ${componentLibName} --buildable=true --publishable=true --prefix=${prefix ?? ''} --importPath=${projectName} --skipTests=true`
     );

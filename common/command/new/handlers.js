@@ -152,7 +152,7 @@ export const handleStory = async ({ packageManager, componentLibName }) => {
  * 处理package.json
  * @returns {Promise<void>}
  */
-export const handlePackageJson = async ({ projectName, componentLibName, demoLibName }) => {
+export const handlePackageJson = async ({ projectName, componentLibName, demoLibName, registry }) => {
     const packageJsonPath = 'package.json';
     const packageJson = await readConfig(packageJsonPath);
     Object.assign(packageJson.scripts, {
@@ -162,8 +162,8 @@ export const handlePackageJson = async ({ projectName, componentLibName, demoLib
         'doc:serve': `nx run ${componentLibName ?? 'ui'}:storybook`,
         'doc:build': `nx run ${componentLibName ?? 'ui'}:build-storybook`,
         'ui:build': `nx run ${componentLibName ?? 'ui'}:build`,
-        'ui:unpublish': `npm unpublish ${projectName} --registry http://npm.runtongqiuben.com --force`,
-        'ui:publish': `pnpm build && cd dist/${projectName} && npm publish --registry https://npm.runtongqiuben.com`
+        'ui:unpublish': `npm unpublish ${projectName} --force --registry ${registry}`,
+        'ui:publish': `pnpm build && cd dist/${projectName} && npm publish --registry ${registry}`
     });
     await writeConfig(packageJsonPath, packageJson);
 };

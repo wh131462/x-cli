@@ -3,7 +3,7 @@ X-CLI 是一个用于创建标准项目的命令行工具。它提供了初始�
 
 ## 安装
 ```bash
-npm install @eh/x-cli -g
+npm install @eternalheart/x-cli -g
 ```
 
 ## 使用说明
@@ -67,7 +67,7 @@ x doc
 ## 构建与发布
 ```bash
 npm run build
-npm run publish_
+npm run cli:publish
 ```
 
 ## 提交规范

@@ -12,20 +12,20 @@ import { logger } from '#common/utils/x/logger.js';
 import { kebabcase } from '#common/utils/string/kebabcase.js';
 
 export const newProject = async (projectName) => {
-    await handlePrepare(projectName);
+    await handlePrepare(kebabcase(projectName));
     // 获取前缀
     const componentLibName = await inquire('请输入组件库的名称(回车确认)', 'ui');
-    const prefix = await inquire('请输入组件库使用的组件前缀[prefix](回车确认)', componentLibName);
+    const prefix = await inquire('请输入组件库使用的组件前缀[prefix](回车确认)', kebabcase(componentLibName));
     const demoLibName = await inquire('请输入demo库的名称(回车确认)', 'play');
     const packageManager = await select('选择你的包管理器(回车确认)', 'pnpm', ['pnpm', 'npm', 'yarn']);
     // 组装有用的变量组
     // 因为驼峰法projectName会被nx改为连词符法 所以需要调整
     const useful = {
         projectName: kebabcase(projectName),
+        componentLibName: kebabcase(componentLibName),
+        demoLibName: kebabcase(demoLibName),
         packageManager,
-        prefix,
-        componentLibName,
-        demoLibName
+        prefix
     };
     try {
         await handleProject(useful);

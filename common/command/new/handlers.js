@@ -103,8 +103,16 @@ export const handleDirectory = async ({ componentLibName, demoLibName }) => {
         removeFile(`${demoLibName}/src/app/app.component.spec.ts`),
         removeFile(`${demoLibName}/src/app/app.component.css`),
         createFile(`${demoLibName}/src/app/app.component.scss`),
-        replaceFile(`${demoLibName}/src/app/app.component.html`, '<cses-ui-nx-welcome></cses-ui-nx-welcome> ', ''),
-        replaceFile(`${demoLibName}/src/app/app.component.ts`, 'NxWelcomeComponent,', '')
+        replaceFile(
+            `${demoLibName}/src/app/app.component.html`,
+            `<${componentLibName}-nx-welcome></${componentLibName}-nx-welcome> `,
+            ''
+        ),
+        replaceFile(
+            `${demoLibName}/src/app/app.component.ts`,
+            "import { NxWelcomeComponent } from './nx-welcome.component'",
+            ''
+        )
     );
 };
 /**

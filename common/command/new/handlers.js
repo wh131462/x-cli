@@ -112,14 +112,17 @@ export const handleDirectory = async ({ componentLibName, demoLibName }) => {
         createFile(`${demoLibName}/src/app/app.component.scss`),
         replaceFile(
             `${demoLibName}/src/app/app.component.html`,
-            `<${componentLibName}-nx-welcome></${componentLibName}-nx-welcome> `,
+            `<${kebabcase(componentLibName)}-nx-welcome></${kebabcase(componentLibName)}-nx-welcome> `,
             ''
         ),
+        // 去除 ts 中的多余内容
         replaceFile(
             `${demoLibName}/src/app/app.component.ts`,
-            "import { NxWelcomeComponent } from './nx-welcome.component'",
+            "import { NxWelcomeComponent } from './nx-welcome.component';\n",
             ''
-        )
+        ),
+        replaceFile(`${demoLibName}/src/app/app.component.ts`, 'NxWelcomeComponent, ', ''),
+        replaceFile(`${demoLibName}/src/app/app.component.ts`, "'./app.component.css'", '')
     );
 };
 /**

@@ -37,19 +37,27 @@ export const updateFile = async (filePath, content) => {
     await appendFile(filePath, '\n' + content);
 };
 /**
- * 替换文件内容
+ * 替换文件内容 - 第二个参数传入数组 可以多个匹配规则替换
  * @param filePath
  * @param search
  * @param replace
  * @returns {Promise<void>}
  */
-export const replaceFile = async (filePath, search, replace) => {
+export const replaceFile = async (filePath, search, replace = null) => {
     logger.info(`replacing file:${filePath}`);
+    let replacePairs = [];
+    if (!Array.isArray(search)) {
+        replacePairs = [[search, replace]];
+    } else {
+        replacePairs = search;
+    }
     const content = await loadFile(filePath);
-    const newContent = content.replace(search, replace);
-    logger.off();
-    await writeFile(filePath, newContent);
-    logger.on();
+    let newContent = content;
+    for (const [se, re] of replacePairs) {
+        newContent = newContent.replaceAll(se, re);
+    }
+    logger.warn(filePath, search, '===>', newContent);
+    await writeFile(filePath, newContent, 'utf8');
 };
 /**
  * 读取文件

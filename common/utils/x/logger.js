@@ -3,8 +3,9 @@ import { env } from '#common/utils/node/env.js';
 import { createEnum } from '#common/utils/node/enum.js';
 
 class LOGGER {
-    _TypeBg = createEnum(['info', 'bgBlueBright'], ['warn', 'bgYellow'], ['error', 'bgRedBright']);
-    _logo = (type) => chalk.bgBlueBright(chalk[this._TypeBg[type]](` x-cli => ${type} `));
+    _TypeBg = createEnum(['info', 'bgBlue'], ['warn', 'bgYellow'], ['error', 'bgRedBright']);
+    _logo = (type) =>
+        chalk.bgBlueBright(chalk.whiteBright(` X-CLI `)) + chalk[this._TypeBg[type]](` ${type.toUpperCase()} `);
     isOn = true;
 
     constructor(_env) {}

@@ -5,12 +5,14 @@ import { removeFile } from '#common/utils/file/remove.js';
 import { resolve } from 'node:path';
 import { uiStorybookMain } from '#common/command/new/templates/ui-storybook-main.js';
 import { npx } from '#common/utils/manager/npm.js';
-import { executeInteraction, executeTogether } from '#common/utils/node/execute.js';
+import { executeByOrder, executeInteraction, executeTogether } from '#common/utils/node/execute.js';
 import { existsSync } from 'node:fs';
 import { inquire } from '#common/utils/ui/promot.js';
 import { DefaultVer } from '#common/constants/x.const.js';
 import { getManagerByName } from '#common/utils/manager/manager.js';
 import { kebabcase } from '#common/utils/string/kebabcase.js';
+import { BaseReadmeTemplate } from '#common/command/new/templates/readme.js';
+import { PreviewTemplate } from '#common/command/new/templates/preview.js';
 
 /**
  * 预处理
@@ -58,7 +60,7 @@ export const handleProject = async ({ projectName, packageManager, prefix, compo
 /**
  * 对目录的处理
  */
-export const handleDirectory = async ({ componentLibName, demoLibName }) => {
+export const handleDirectory = async ({ projectName, componentLibName, demoLibName }) => {
     const dirs = ['components', 'directives', 'pipes'];
     const variablesPath = resolve(`${componentLibName}/src/lib/styles/variables/public.scss`);
     const publishScssPath = resolve(`${componentLibName}/src/lib/styles/public.scss`);
@@ -83,22 +85,9 @@ export const handleDirectory = async ({ componentLibName, demoLibName }) => {
         ),
         writeConfig(variablesPath, `@mixin variables() {\n}`),
         writeConfig(publishScssPath, `@import "./variables/public";\n@include variables();`),
-        createFile(
-            baseDocumentPath,
-            `import { Meta } from '@storybook/addon-docs/blocks';
-
-<Meta title="说明" />
-
-# 说明
-
-内容
-`
-        ),
+        createFile(baseDocumentPath, BaseReadmeTemplate),
         writeConfig(documentationPath, '{}'),
-        writeConfig(
-            previewPath,
-            `import { setCompodocJson } from '@storybook/addon-docs/angular';\nimport docJson from '../documentation.json';\nsetCompodocJson(docJson);`
-        ),
+        writeConfig(previewPath, PreviewTemplate),
         writeConfig(tsconfigPath, tsconfig),
         createFile(mainPath, uiStorybookMain),
         // demo
@@ -112,17 +101,15 @@ export const handleDirectory = async ({ componentLibName, demoLibName }) => {
         createFile(`${demoLibName}/src/app/app.component.scss`),
         replaceFile(
             `${demoLibName}/src/app/app.component.html`,
-            `<${componentLibName}-nx-welcome></${componentLibName}-nx-welcome> `,
+            `<${projectName}-nx-welcome></${projectName}-nx-welcome> `,
             ''
         ),
         // 去除 ts 中的多余内容
-        replaceFile(
-            `${demoLibName}/src/app/app.component.ts`,
-            "import { NxWelcomeComponent } from './nx-welcome.component';\n",
-            ''
-        ),
-        replaceFile(`${demoLibName}/src/app/app.component.ts`, 'NxWelcomeComponent, ', ''),
-        replaceFile(`${demoLibName}/src/app/app.component.ts`, "'./app.component.css'", '')
+        replaceFile(`${demoLibName}/src/app/app.component.ts`, [
+            [`import { NxWelcomeComponent } from './nx-welcome.component';`, ''],
+            [`NxWelcomeComponent, `, ''],
+            [`'./app.component.css'`, '']
+        ])
     );
 };
 /**

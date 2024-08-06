@@ -14,11 +14,11 @@
     },
     "scripts": {
         "dev": "npm link",
-        "dev:quit": "npm unlink @eh/x-cli  && npm uninstall -g @eh/x-cli",
+        "dev:quit": "npm unlink @eternalheart/x-cli  && npm uninstall -g @eternalheart/x-cli",
         "build": "node esbuild.config.js",
         "cli:publish": "npm run build && cd ./dist && npm publish",
         "cli:publish:update": "npm version patch || true && npm run cli:publish",
-        "cli:unpublish": "npm unpublish --force @eh/x-cli",
+        "cli:unpublish": "npm unpublish --force @eternalheart/x-cli",
         "prepare": "husky",
         "commit": "cz"
     },

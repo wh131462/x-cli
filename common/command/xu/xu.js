@@ -13,11 +13,13 @@ export const xu = async (packageName, isGlobal) => {
     }
     await managerExec(async ({ has, uninstall }) => {
         if (packageName) {
-            if (await has(packageName)) {
-                await uninstall(packageName, isGlobal);
-            } else {
-                logger.warn(`${packageName} not found`);
-            }
+            await uninstall(packageName, isGlobal);
+            // todo 不要再逗留,人心太拥挤
+            // if (await has(packageName,isGlobal)) {
+            //
+            // } else {
+            //     logger.warn(`${packageName} not found`);
+            // }
         }
     });
 };

@@ -112,7 +112,7 @@ export const handleDirectory = async ({ componentLibName, demoLibName }) => {
         createFile(`${demoLibName}/src/app/app.component.scss`),
         replaceFile(
             `${demoLibName}/src/app/app.component.html`,
-            `<${kebabcase(componentLibName)}-nx-welcome></${kebabcase(componentLibName)}-nx-welcome> `,
+            `<${componentLibName}-nx-welcome></${componentLibName}-nx-welcome> `,
             ''
         ),
         // 去除 ts 中的多余内容
@@ -136,7 +136,7 @@ export const handleStory = async ({ packageManager, componentLibName }) => {
         [
             '@compodoc/compodoc',
             '@storybook/addon-essentials',
-            '@storybook/addon-docs/',
+            '@storybook/addon-docs',
             '@storybook/react-dom-shim',
             '@storybook/builder-webpack5',
             'esbuild@^0.19.2'

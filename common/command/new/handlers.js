@@ -133,6 +133,7 @@ export const handleStory = async ({ packageManager, componentLibName }) => {
         [
             '@compodoc/compodoc',
             '@storybook/addon-essentials',
+            '@storybook/addon-docs/',
             '@storybook/react-dom-shim',
             '@storybook/builder-webpack5',
             'esbuild@^0.19.2'

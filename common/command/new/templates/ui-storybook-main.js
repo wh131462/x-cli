@@ -2,11 +2,7 @@ export const uiStorybookMain = `import type {StorybookConfig} from '@storybook/a
 const config: StorybookConfig = {
   stories: ['../src/**/*.mdx', '../**/*.stories.@(js|jsx|ts|tsx|mdx)'],
   addons: [
-    "@storybook/addon-links",
-    "@storybook/addon-essentials",
-    "@storybook/addon-interactions",
-    "@storybook/addon-actions",
-    "@storybook/addon-controls",
+    "@storybook/addon-essentials"
   ],
   // typescript: {
   //   // Overrides the default Typescript configuration to allow multi-package components to be documented via Autodocs.
@@ -22,8 +18,7 @@ const config: StorybookConfig = {
     options: {},
   },
   core: {
-    // @ts-ignore
-    builder: 'webpack5',
+    builder: '@storybook/builder-webpack5',
   },
 };
 

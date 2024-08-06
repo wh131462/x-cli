@@ -85,9 +85,16 @@ export const handleDirectory = async ({ componentLibName, demoLibName }) => {
         writeConfig(publishScssPath, `@import "./variables/public";\n@include variables();`),
         createFile(
             baseDocumentPath,
-            `import { Meta, Controls } from '@storybook/blocks';\n<Meta title="文档/README" />\n# README`
+            `import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="说明" />
+
+# 说明
+
+内容
+`
         ),
-        writeConfig(documentationPath, ''),
+        writeConfig(documentationPath, '{}'),
         writeConfig(
             previewPath,
             `import { setCompodocJson } from '@storybook/addon-docs/angular';\nimport docJson from '../documentation.json';\nsetCompodocJson(docJson);`
@@ -122,11 +129,29 @@ export const handleDirectory = async ({ componentLibName, demoLibName }) => {
  * @returns {Promise<void>}
  */
 export const handleStory = async ({ packageManager, componentLibName }) => {
-    await getManagerByName(packageManager).install('@compodoc/compodoc', true);
+    await getManagerByName(packageManager).install(
+        [
+            '@compodoc/compodoc',
+            '@storybook/addon-essentials',
+            '@storybook/react-dom-shim',
+            '@storybook/builder-webpack5',
+            'esbuild@^0.19.2'
+        ],
+        true
+    );
     const storyTsConfigPath = resolve(`${componentLibName}/.storybook/tsconfig.json`);
     const tsConfigStory = await readConfig(storyTsConfigPath);
     tsConfigStory?.include?.push('../src/**/*.ts');
     await writeConfig(storyTsConfigPath, tsConfigStory);
+    // 调整json支持
+    const tsBaseConfigPath = resolve('tsconfig.base.json');
+    const tsBaseConfig = await readConfig(tsBaseConfigPath);
+    tsBaseConfig.compilerOptions.resolveJsonModule = true;
+    tsBaseConfig.compilerOptions.allowSyntheticDefaultImports = true;
+    await writeConfig(tsBaseConfigPath, tsBaseConfig);
+    // main.ts 调整
+    const mainPath = resolve(`${componentLibName}/.storybook/main.ts`);
+
     const projectJsonPath = resolve(`${componentLibName}/project.json`);
     const projectJson = await readConfig(projectJsonPath);
     const compodocConfig = {
@@ -136,7 +161,8 @@ export const handleStory = async ({ packageManager, componentLibName }) => {
             'json',
             '-d',
             `${componentLibName}/src`,
-            '--u',
+            '-p',
+            `${componentLibName}/tsconfig.json`,
             '--disablePrivate',
             '--disableInternal',
             '--disableProtected',

@@ -1,6 +1,6 @@
 {
     "name": "@eternalheart/x-cli",
-    "version": "1.0.3",
+    "version": "1.0.4-alpha-0",
     "type": "module",
     "description": "A cli for project to create all needed.",
     "bin": {

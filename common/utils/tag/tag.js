@@ -20,9 +20,9 @@ export const tagRules = {
         return s.at(0).toUpperCase() + s.slice(1);
     },
     // 驼峰法
-    camel: camel,
+    camel: (str) => camel(str),
     // 连词符法
-    kebabcase: kebabcase
+    kebabcase: (str) => kebabcase(str)
 };
 /**
  * 所有可用规则
@@ -33,7 +33,7 @@ export const rules = Object.keys(tagRules);
  * 正则用于匹配对应的标签
  * @type {RegExp}
  */
-export const tagReg = new RegExp(`{@[0-9a-zA-Z]+(?:__(${rules.join('|')}))?}`, 'img');
+export const tagReg = new RegExp(`{@[0-9a-zA-Z]+(?:__(${rules.join('|')}))*}`, 'img');
 /**
  * 获取名字
  * @param str
@@ -41,6 +41,7 @@ export const tagReg = new RegExp(`{@[0-9a-zA-Z]+(?:__(${rules.join('|')}))?}`, '
 export const getName = (str) => {
     return str
         .toString()
+        .replace(/[@{}]+/g, '')
         .split('__')[0]
         ?.toLowerCase()
         .replace(/[@{}]+/g, '');
@@ -53,6 +54,7 @@ export const getName = (str) => {
 export const getRules = (str) => {
     return str
         .toString()
+        .replace(/[@{}]+/g, '')
         .split('__')
         .slice(1)
         .map((rule) => rule.toLowerCase().replace(/[@{}]+/g, ''));

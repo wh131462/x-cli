@@ -8,6 +8,7 @@ import {
     externalIndex
 } from '#common/command/create/templates/component.js';
 import { convertTemplateByTags } from '#common/utils/tag/tag.js';
+import { kebabcase } from '#common/utils/string/kebabcase.js';
 
 /**
  * 删除组件
@@ -18,6 +19,7 @@ import { convertTemplateByTags } from '#common/utils/tag/tag.js';
  * @returns {Promise<void>}
  */
 export const removeComponent = async (name, directory, { needExport = false } = {}) => {
+    name = kebabcase(name);
     const { prefix } = await getXConfig();
     const tags = { name, prefix };
     const componentDir = resolve(directory, name);
@@ -32,9 +34,9 @@ export const removeComponent = async (name, directory, { needExport = false } = 
  * @returns {Promise<void>}
  */
 export const removeComponentDemo = async (name, directory) => {
+    name = kebabcase(name);
     const { prefix, name: project } = await getXConfig();
     const demoDir = resolve(directory, name);
-
     const demoRoute = resolve(directory, '../app', 'app.routes.ts');
     const tags = { name, project, prefix };
     await removeDir(demoDir);

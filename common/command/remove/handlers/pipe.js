@@ -9,6 +9,7 @@ import {
     externalIndex
 } from '#common/command/create/templates/component.js';
 import { externalPipeIndex, pipeDemoRoute, pipeDemoRouteImport } from '#common/command/create/templates/pipe.js';
+import { kebabcase } from '#common/utils/string/kebabcase.js';
 
 /**
  * 删除pipe
@@ -17,6 +18,7 @@ import { externalPipeIndex, pipeDemoRoute, pipeDemoRouteImport } from '#common/c
  * @returns {Promise<void>}
  */
 export const removePipe = async (name, directory) => {
+    name = kebabcase(name);
     const { prefix } = await getXConfig();
     const tags = { name, prefix };
     const pipePath = resolve(directory, `${name}.pipe.ts`);
@@ -31,6 +33,7 @@ export const removePipe = async (name, directory) => {
  * @returns {Promise<void>}
  */
 export const removePipeDemo = async (name, directory) => {
+    name = kebabcase(name);
     const { prefix, name: project } = await getXConfig();
     const demoTs = resolve(directory, `${name}.pipe.ts`);
     const demoRoute = resolve(directory, '../app', 'app.routes.ts');

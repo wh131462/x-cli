@@ -8,8 +8,10 @@ import {
     directiveDemoRouteImport,
     externalDirectiveIndex
 } from '#common/command/create/templates/directive.js';
+import { kebabcase } from '#common/utils/string/kebabcase.js';
 
 export const removeDirective = async (name, directory) => {
+    name = kebabcase(name);
     const { prefix } = await getXConfig();
     const tags = { name, prefix };
     const directivePath = resolve(directory, `${name}.directive.ts`);
@@ -18,6 +20,7 @@ export const removeDirective = async (name, directory) => {
     await replaceFile(directivesIndexPath, '\n' + convertTemplateByTags(externalDirectiveIndex, tags), '');
 };
 export const removeDirectiveDemo = async (name, directory) => {
+    name = kebabcase(name);
     const { prefix, name: project } = await getXConfig();
     const demoTs = resolve(directory, `${name}.directive.ts`);
     const demoRoute = resolve(directory, '../app', 'app.routes.ts');

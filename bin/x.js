@@ -60,7 +60,7 @@ program
     .option('-b,--bind [bind]', 'Create with binding.')
     .description('Create a new component, directive, pipe, service, or documentation')
     .action((type, name, { directory, bind }) => {
-        logger.info(`Creating ${type} named ${name} ${directory ? 'in ' + directory : ''}`);
+        logger.info(`Creating ${type} named ${name}.`, directory ? `[ Specified directory at ${directory}.]` : '');
         create(type, name, directory, bind)
             .then(() => {
                 logger.info(`Created ${type} named ${name}.`);
@@ -76,7 +76,7 @@ program
     .option('-d,--directory [directory]', 'Specify a directory')
     .description('Remove an existing component, directive, pipe, service, or documentation')
     .action((type, name, { directory }) => {
-        logger.info(`Removing ${type} named ${name}`, directory);
+        logger.info(`Removing ${type} named ${name}.`, directory ? `[ Specified directory at ${directory}.]` : '');
         remove(type, name, directory)
             .then(() => {
                 logger.info(`Removed ${type} named ${name}.`);

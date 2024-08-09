@@ -126,7 +126,9 @@ export const handleStory = async ({ packageManager, componentLibName }) => {
             '@storybook/addon-docs',
             '@storybook/react-dom-shim',
             '@storybook/builder-webpack5',
-            'esbuild@^0.19.2'
+            'esbuild@^0.19.2',
+            'react',
+            'react-dom'
         ],
         true
     );

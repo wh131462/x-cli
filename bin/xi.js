@@ -11,6 +11,7 @@ program
     .option('-D,--save-dev', 'Save as development dependency')
     .option('-g,--global', 'Save as global dependency')
     .description('Install or uninstall a dependency in the project.')
+    .allowUnknownOption(true)
     .action((packageName, { saveDev, global }) => {
         xi(packageName, saveDev, global)
             .then(() => {

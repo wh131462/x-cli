@@ -11,9 +11,9 @@ program
     .option('-g,--global', 'Uninstall the global dependency')
     .description('Uninstall a dependency in the project.')
     .action((packageName, { global }) => {
-        xu(packageName, global)
+        xu(program.args, global)
             .then(() => {
-                logger.info(`The ${packageName} has been uninstalled successfully.`);
+                logger.info(`The ${`[${program.args.toString()}]` ?? 'packages'} have been uninstalled successfully.`);
                 process.exit(0);
             })
             .catch(() => process.exit(1));

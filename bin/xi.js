@@ -13,9 +13,9 @@ program
     .description('Install or uninstall a dependency in the project.')
     .allowUnknownOption(true)
     .action((packageName, { saveDev, global }) => {
-        xi(packageName, saveDev, global)
+        xi(program.args, saveDev, global)
             .then(() => {
-                logger.info(`The ${packageName ?? 'packages'} has been installed successfully.`);
+                logger.info(`The ${`[${program.args.toString()}]` ?? 'packages'} have been installed successfully.`);
                 process.exit(0);
             })
             .catch(() => process.exit(1));

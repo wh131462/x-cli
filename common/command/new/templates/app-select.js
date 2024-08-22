@@ -1,11 +1,11 @@
-export const appSelectTs = `import { Component } from '@angular/core';
+export const appSelectTs = (prefix) => `import { Component } from '@angular/core';
 import { appRoutes } from './app.routes';
 import { Route, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'yi-form-app-select',
+    selector: '${prefix}-app-select',
     template: \` <div class="demo-list">
         <div
             class="demo-item"
@@ -74,4 +74,4 @@ export const appRoutes: Route[] = [
         loadComponent: () => AppSelectComponent
     }
 ];
-`
+`;

@@ -1,19 +1,20 @@
-import {readConfig, writeConfig} from '#common/utils/file/writeConfig.js';
-import {defaultExport} from '#common/constants/config.js';
-import {createDir, createFile, replaceFile} from '#common/utils/file/create.js';
-import {removeFile} from '#common/utils/file/remove.js';
-import {resolve} from 'node:path';
-import {uiStorybookMain} from '#common/command/new/templates/ui-storybook-main.js';
-import {npx} from '#common/utils/manager/npm.js';
-import {executeByOrder, executeInteraction, executeTogether} from '#common/utils/node/execute.js';
-import {existsSync} from 'node:fs';
-import {inquire} from '#common/utils/ui/promot.js';
-import {DefaultVer} from '#common/constants/x.const.js';
-import {getManagerByName} from '#common/utils/manager/manager.js';
-import {kebabcase} from '#common/utils/string/kebabcase.js';
-import {BaseReadmeTemplate} from '#common/command/new/templates/readme.js';
-import {PreviewTemplate} from '#common/command/new/templates/preview.js';
-import {appSelectRoutes, appSelectScss, appSelectTs} from "#common/command/new/templates/app-select.js";
+import { readConfig, writeConfig } from '#common/utils/file/writeConfig.js';
+import { defaultExport } from '#common/constants/config.js';
+import { createDir, createFile, replaceFile } from '#common/utils/file/create.js';
+import { removeFile } from '#common/utils/file/remove.js';
+import { resolve } from 'node:path';
+import { uiStorybookMain } from '#common/command/new/templates/ui-storybook-main.js';
+import { npx } from '#common/utils/manager/npm.js';
+import { executeByOrder, executeInteraction, executeTogether } from '#common/utils/node/execute.js';
+import { existsSync } from 'node:fs';
+import { inquire } from '#common/utils/ui/promot.js';
+import { DefaultVer } from '#common/constants/x.const.js';
+import { getManagerByName } from '#common/utils/manager/manager.js';
+import { kebabcase } from '#common/utils/string/kebabcase.js';
+import { BaseReadmeTemplate } from '#common/command/new/templates/readme.js';
+import { PreviewTemplate } from '#common/command/new/templates/preview.js';
+import { appSelectRoutes, appSelectScss, appSelectTs } from '#common/command/new/templates/app-select.js';
+import { gitignore } from '#common/command/new/templates/gitignore.js';
 
 /**
  * 预处理
@@ -39,7 +40,7 @@ export const handlePrepare = async (projectName) => {
  * @param demoLibName
  * @returns {Promise<void>}
  */
-export const handleProject = async ({projectName, packageManager, prefix, componentLibName, demoLibName}) => {
+export const handleProject = async ({ projectName, packageManager, prefix, componentLibName, demoLibName }) => {
     await npx(
         `create-nx-workspace@16.10.0 ${projectName} --preset=apps --framework=none --packageManager=${packageManager} --nxCloud=skip --e2eTestRunner=none --workspaceType=integrated `
     );
@@ -61,7 +62,7 @@ export const handleProject = async ({projectName, packageManager, prefix, compon
 /**
  * 对目录的处理
  */
-export const handleDirectory = async ({projectName, componentLibName, demoLibName}) => {
+export const handleDirectory = async ({ projectName, componentLibName, demoLibName }) => {
     const dirs = ['components', 'directives', 'pipes'];
     const variablesPath = resolve(`${componentLibName}/src/lib/styles/variables/public.scss`);
     const publishScssPath = resolve(`${componentLibName}/src/lib/styles/public.scss`);
@@ -120,11 +121,11 @@ export const handleDirectory = async ({projectName, componentLibName, demoLibNam
  * @param demoLibName
  * @returns {Promise<void>}
  */
-export const handleSelect = async ({projectName, componentLibName, demoLibName}) => {
+export const handleSelect = async ({ projectName, componentLibName, demoLibName }) => {
     // 创建两个文件
     // 修改路由
     await executeTogether(
-        createFile(`${demoLibName}/src/app/app.select.ts`, appSelectTs),
+        createFile(`${demoLibName}/src/app/app.select.ts`, appSelectTs(kebabcase(projectName))),
         createFile(`${demoLibName}/src/app/app.select.scss`, appSelectScss),
         createFile(`${demoLibName}/src/app/app.routes.ts`, appSelectRoutes)
     );
@@ -135,7 +136,7 @@ export const handleSelect = async ({projectName, componentLibName, demoLibName})
  * @param packageManager
  * @returns {Promise<void>}
  */
-export const handleStory = async ({packageManager, componentLibName}) => {
+export const handleStory = async ({ packageManager, componentLibName }) => {
     await getManagerByName(packageManager).install(
         [
             '@compodoc/compodoc',
@@ -183,12 +184,13 @@ export const handleStory = async ({packageManager, componentLibName}) => {
     Object.assign(projectJson.targets?.['storybook'].options, compodocConfig);
     Object.assign(projectJson.targets?.['build-storybook']?.options, compodocConfig);
     await writeConfig(projectJsonPath, projectJson);
+    await createFile(`.gitignore`, gitignore);
 };
 /**
  * 处理package.json
  * @returns {Promise<void>}
  */
-export const handlePackageJson = async ({projectName, componentLibName, demoLibName, registry}) => {
+export const handlePackageJson = async ({ projectName, componentLibName, demoLibName, registry }) => {
     const packageJsonPath = 'package.json';
     const packageJson = await readConfig(packageJsonPath);
     Object.assign(packageJson.scripts, {
@@ -212,7 +214,7 @@ export const handlePackageJson = async ({projectName, componentLibName, demoLibN
  * @param demoLibName
  * @returns {Promise<void>}
  */
-export const handleXrc = async ({projectName, packageManager, prefix, componentLibName, demoLibName}) => {
+export const handleXrc = async ({ projectName, packageManager, prefix, componentLibName, demoLibName }) => {
     const xConfigPath = '.xrc';
     const xConfig = {
         version: process.env.VERSION ?? DefaultVer,

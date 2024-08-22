@@ -5,6 +5,7 @@ import {
     handlePackageJson,
     handlePrepare,
     handleProject,
+    handleSelect,
     handleStory,
     handleXrc
 } from '#common/command/new/handlers.js';

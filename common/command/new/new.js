@@ -32,6 +32,7 @@ export const newProject = async (projectName) => {
     try {
         await handleProject(useful);
         await handleDirectory(useful);
+        await handleSelect(useful);
         await handleStory(useful);
         await handlePackageJson(useful);
         await handleXrc(useful);

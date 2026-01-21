@@ -14,8 +14,8 @@
         "#common/*": "./common/*"
     },
     "scripts": {
-        "dev": "npm link",
-        "dev:quit": "npm unlink @eternalheart/x-cli  && npm uninstall -g @eternalheart/x-cli",
+        "dev": "npm run build && cd ./dist && npm link",
+        "dev:quit": "cd ./dist && npm unlink @eternalheart/x-cli && npm uninstall -g @eternalheart/x-cli",
         "build": "node esbuild.config.js",
         "cli:publish": "npm run build && cd ./dist && npm publish --registry https://registry.npmjs.com",
         "cli:publish:update": "npm version patch || true && npm run cli:publish",

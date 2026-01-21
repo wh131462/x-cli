@@ -2,44 +2,17 @@ import { writeConfig } from '#common/utils/file/writeConfig.js';
 import { removeFile } from '#common/utils/file/remove.js';
 import { managerHas, managerInstall, managerUninstall } from '#common/utils/manager/manager.js';
 import { executeTogether } from '#common/utils/node/execute.js';
+import { eslintConfigSingle, eslintConfigMonorepo } from '#common/constants/devtools.const.js';
 
-const eslintConfig = {
-    env: {
-        browser: true,
-        es2021: true
-    },
-    extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
-    parser: '@typescript-eslint/parser',
-    parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module'
-    },
-    plugins: ['@typescript-eslint', 'unused-imports'],
-    rules: {
-        'no-case-declarations': 'off',
-        'unused-imports/no-unused-imports': 'error',
-        '@typescript-eslint/no-explicit-any': 'off',
-        '@typescript-eslint/no-unused-vars': 'off',
-        '@typescript-eslint/no-this-alias': 'off',
-        '@typescript-eslint/ban-types': [
-            'error',
-            {
-                types: {
-                    Function: false
-                }
-            }
-        ],
-        '@typescript-eslint/prefer-readonly-parameter-types': 'off'
-    }
-};
 /**
  * eslint
  * @type {IPlugin}
- * */
+ */
 export const eslint = {
     check: () => managerHas('eslint'),
-    install: () =>
-        executeTogether(
+    install: async ({ monorepo = false } = {}) => {
+        const config = monorepo ? eslintConfigMonorepo : eslintConfigSingle;
+        return executeTogether(
             managerInstall(
                 [
                     'eslint-plugin-unused-imports',
@@ -50,17 +23,19 @@ export const eslint = {
                 ],
                 true
             ),
-            writeConfig('.eslintrc', eslintConfig)
-        ),
+            writeConfig('.eslintrc.json', config)
+        );
+    },
     uninstall: () =>
         executeTogether(
             managerUninstall([
                 'eslint-plugin-unused-imports',
-                '@typescript-eslint/eslint-plugin@latest',
-                '@typescript-eslint/parser@latest',
-                'eslint@latest',
+                '@typescript-eslint/eslint-plugin',
+                '@typescript-eslint/parser',
+                'eslint',
                 'eslint-config-prettier'
             ]),
+            removeFile('.eslintrc.json'),
             removeFile('.eslintrc')
         )
 };

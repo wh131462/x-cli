@@ -7,17 +7,16 @@ import { logger } from '#common/utils/x/logger.js';
 import { plugin } from '#common/command/plugin/plugin.js';
 import { update } from '#common/command/update/update.js';
 import { newProject } from '#common/command/new/new.js';
-import { create } from '#common/command/create/create.js';
-import { remove } from '#common/command/remove/remove.js';
 import { loadFile } from '#common/utils/file/create.js';
 import { resolve } from 'node:path';
 import { rootPath } from '#common/utils/file/path.js';
 
 const version = process.env.VERSION ?? DefaultVer;
+
 program
     .version(version)
-    .description(`A cli for any create standard project.`)
-    .allowUnknownOption() // 允许未知选项，以便我们可以捕获自定义命令
+    .description('A CLI for creating frontend projects and managing dev tools.')
+    .allowUnknownOption()
     .on('command:*', (cmd) => {
         logger.error(`Invalid command: ${cmd}`);
         process.exit(1);
@@ -27,97 +26,67 @@ program
         process.exit(0);
     });
 
-// 初始化
+// 初始化 CLI 依赖
 program
     .command('init')
-    .description('Initialize cli dependencies')
+    .description('Initialize CLI dependencies')
     .action(() => {
-        logger.info(`Initializing cli dependencies`);
+        logger.info('Initializing CLI dependencies...');
         init()
             .then(() => {
-                logger.info(`Initialized cli dependencies`);
+                logger.info('CLI dependencies initialized.');
                 process.exit(0);
             })
             .catch(() => process.exit(1));
     });
-// 处理自定义命令
+
+// 创建新项目
 program
     .command('new <projectName>')
-    .description('Initialize a new project')
+    .description('Create a new project (Vue/React/Angular)')
     .action((projectName) => {
-        logger.info(`Initializing new project: ${projectName}`);
+        logger.info(`Creating new project: ${projectName}`);
         newProject(projectName)
             .then(() => {
-                logger.info(`Initialized new project: ${projectName}.`);
+                logger.info(`Project ${projectName} created successfully.`);
                 process.exit(0);
             })
             .catch(() => process.exit(1));
     });
 
+// 插件管理
 program
-    .command('create <type> <name>')
-    .option('-d,--directory [directory]', 'Specify a directory')
-    .option('-b,--bind [bind]', 'Create with binding.')
-    .description('Create a new component, directive, pipe, service, or documentation')
-    .action((type, name, { directory, bind }) => {
-        logger.info(`Creating ${type} named ${name}.`, directory ? `[ Specified directory at ${directory}.]` : '');
-        create(type, name, directory, bind)
-            .then(() => {
-                logger.info(`Created ${type} named ${name}.`);
-                process.exit(0);
-            })
-            .catch(() => {
-                process.exit(1);
-            });
-    });
-
-program
-    .command('remove <type> <name>')
-    .option('-d,--directory [directory]', 'Specify a directory')
-    .description('Remove an existing component, directive, pipe, service, or documentation')
-    .action((type, name, { directory }) => {
-        logger.info(`Removing ${type} named ${name}.`, directory ? `[ Specified directory at ${directory}.]` : '');
-        remove(type, name, directory)
-            .then(() => {
-                logger.info(`Removed ${type} named ${name}.`);
-                process.exit(0);
-            })
-            .catch(() => {
-                process.exit(1);
-            });
-    });
-
-program
-    .command('plugin <install|uninstall|list> [pluginName]')
-    .description('Manage plugins by adding, removing, or listing them')
+    .command('plugin <action> [pluginName]')
+    .description('Manage dev tools (install/uninstall/list/init)')
     .action((action, pluginName) => {
         plugin(action, pluginName)
             .then(() => {
-                logger.info(`The ${pluginName ?? 'plugins'} has been ${action}ed.`);
+                if (action !== 'list') {
+                    logger.info('Operation completed.');
+                }
                 process.exit(0);
             })
             .catch(() => process.exit(1));
     });
 
+// 更新
 program
     .command('update')
-    .description('Update x-cli to lts.')
+    .description('Update x-cli to latest version')
     .action(() => {
-        logger.info(`Updating...`);
+        logger.info('Updating...');
         update()
             .then(() => {
-                logger.info(`Updated.`);
+                logger.info('Updated.');
                 process.exit(0);
             })
-            .catch(() => {
-                process.exit(1);
-            });
+            .catch(() => process.exit(1));
     });
 
-// doc
+// 文档
 program
     .command('doc')
-    .description('Display the documentation.')
+    .description('Display documentation')
     .action(() => {
         logger.off();
         loadFile(resolve(rootPath, 'readme.md'))

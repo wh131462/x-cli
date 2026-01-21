@@ -8,6 +8,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { select, input, confirm } from '#common/utils/ui/promot.js';
 import { logger } from '#common/utils/x/logger.js';
+import { rootPath } from '#common/utils/file/path.js';
 
 /**
  * 从 API 获取支持的模型列表
@@ -26,7 +27,7 @@ const fetchModelsFromApi = async (baseUrl, apiKey) => {
         const response = await fetch(modelsUrl, {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${apiKey}`,
+                Authorization: `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
             },
             signal: AbortSignal.timeout(10000) // 10秒超时
@@ -41,7 +42,7 @@ const fetchModelsFromApi = async (baseUrl, apiKey) => {
         // OpenAI 格式: { data: [{ id: "model-name" }, ...] }
         if (data.data && Array.isArray(data.data)) {
             const models = data.data
-                .map(m => m.id)
+                .map((m) => m.id)
                 .filter(Boolean)
                 .sort();
             console.log(`✓ 获取到 ${models.length} 个模型\n`);
@@ -122,10 +123,32 @@ const PROVIDERS = {
 };
 
 /**
- * 获取配置文件路径
+ * 获取配置文件路径（存放在脚手架安装目录）
  */
 const getConfigPath = () => {
-    return resolve(process.cwd(), 'opencode.json');
+    return resolve(rootPath, 'opencode.json');
+};
+
+/**
+ * 获取模板配置文件路径
+ */
+const getExampleConfigPath = () => {
+    return resolve(rootPath, 'opencode.example.json');
+};
+
+/**
+ * 读取模板配置
+ */
+const loadExampleConfig = () => {
+    const examplePath = getExampleConfigPath();
+    if (existsSync(examplePath)) {
+        try {
+            return JSON.parse(readFileSync(examplePath, 'utf-8'));
+        } catch {
+            return {};
+        }
+    }
+    return {};
 };
 
 /**
@@ -166,7 +189,7 @@ const isConfigured = () => {
         'AWS_ACCESS_KEY_ID'
     ];
 
-    if (envKeys.some(key => process.env[key])) {
+    if (envKeys.some((key) => process.env[key])) {
         return true;
     }
 
@@ -225,7 +248,7 @@ const listConfiguredProviders = () => {
     console.log('\n[list] 已配置的 Providers:\n');
     providers.forEach((p, i) => {
         const defaultMark = p.isDefault ? ' *(默认)' : '';
-        const keyStatus = p.hasApiKey ? '✓ Key' : (PROVIDERS[p.name]?.noApiKey ? '无需 Key' : '✗ Key');
+        const keyStatus = p.hasApiKey ? '✓ Key' : PROVIDERS[p.name]?.noApiKey ? '无需 Key' : '✗ Key';
         const baseUrl = p.baseUrl ? ` | ${p.baseUrl}` : '';
         console.log(`  ${i + 1}. ${p.displayName}${defaultMark}`);
         console.log(`     ${keyStatus}${baseUrl}\n`);
@@ -349,7 +372,7 @@ const selectModel = async (providerKey, currentModel = '', config = null) => {
     }
 
     // 优先使用 API 获取的模型，其次预设模型
-    const availableModels = apiModels.length > 0 ? apiModels : (provider?.models || []);
+    const availableModels = apiModels.length > 0 ? apiModels : provider?.models || [];
 
     // 如果没有可用模型，直接输入
     if (availableModels.length === 0) {
@@ -358,13 +381,11 @@ const selectModel = async (providerKey, currentModel = '', config = null) => {
 
     // 有模型列表时，添加"自定义输入"选项
     const options = [
-        ...availableModels.map(m => ({ name: m, value: m })),
+        ...availableModels.map((m) => ({ name: m, value: m })),
         { name: '> 自定义输入...', value: '__custom__' }
     ];
 
-    const defaultValue = currentModel && availableModels.includes(currentModel)
-        ? currentModel
-        : availableModels[0];
+    const defaultValue = currentModel && availableModels.includes(currentModel) ? currentModel : availableModels[0];
 
     const selected = await select('选择模型', defaultValue, options);
 
@@ -406,61 +427,14 @@ const configWizard = async () => {
         console.log(`✓ 默认模型: ${config.model}\n`);
     }
 
-    // 添加 X-CLI Agent 配置
-    config.agent = config.agent || {};
-    config.agent['x-cli'] = {
-        description: 'X-CLI AI 助手 - 全栈前端开发智能助手',
-        prompt: `你是 X-CLI AI 助手，一个强大的全栈前端开发智能助手，运行在终端环境中。
-
-## 核心能力
-
-### 1. 项目创建与管理
-- 使用 \`x new <name>\` 创建 Vue/React/Angular/Vanilla 项目
-- 自动调用官方 CLI (create-vue, create-react-app, @angular/cli)
-- 支持交互式选择框架和配置选项
-
-### 2. 开发工具配置
-- 一键初始化: \`x plugin init\` 配置所有开发工具
-- 支持的插件: ESLint, Prettier, Husky, CommitLint, lint-staged, gitignore
-- 自动检测 Monorepo (pnpm-workspace, lerna, nx, turbo)
-- 智能适配项目结构和现有配置
-
-### 3. 包管理器统一封装
-- \`xi\` 安装依赖 (支持 -D 开发依赖, -g 全局)
-- \`xu\` 卸载依赖
-- \`xr\` 运行脚本
-- 自动检测: packageManager 字段 > 锁文件 > 全局安装 > npm 兜底
-- 支持 npm/yarn/pnpm/bun 无缝切换
-
-### 4. 代码编写与调试
-- 读取、分析、修改项目中的任何文件
-- 执行终端命令，运行构建、测试、lint 等任务
-- 调试代码问题，分析错误日志
-- 代码重构和优化建议
-
-### 5. 前端专业知识
-- Vue/React/Angular 框架深度理解
-- TypeScript/JavaScript 最佳实践
-- CSS/SCSS/Tailwind 样式方案
-- Webpack/Vite/Rollup 构建工具
-- Node.js 后端开发
-- Git 工作流和版本控制
-
-## 工作风格
-- 简洁专业，直接给出可执行的方案
-- 优先使用项目已有的技术栈和规范
-- 修改代码前先理解上下文
-- 提供完整可运行的代码，而非片段
-- 主动检测潜在问题并给出建议
-
-## 可用命令
-- /help - 查看帮助
-- /model - 切换模型
-- /compact - 压缩对话历史
-- /clear - 清空对话
-- Tab - 切换 build/plan 模式`
-    };
-    config.default_agent = 'x-cli';
+    // 从模板文件读取 X-Agent 配置
+    const exampleConfig = loadExampleConfig();
+    if (exampleConfig.agent) {
+        config.agent = { ...config.agent, ...exampleConfig.agent };
+    }
+    if (exampleConfig.default_agent) {
+        config.default_agent = exampleConfig.default_agent;
+    }
 
     // 保存配置
     saveConfig(config);
@@ -475,18 +449,14 @@ const configWizard = async () => {
 const manageProviders = async () => {
     console.log('\n[config] Provider 管理\n');
 
-    const action = await select(
-        '选择操作',
-        'list',
-        [
-            { name: '[list] 查看已配置的 Providers', value: 'list' },
-            { name: '[+] 添加新的 Provider', value: 'add' },
-            { name: '[~] 切换默认 Provider', value: 'switch' },
-            { name: '[*] 修改 Provider 配置', value: 'edit' },
-            { name: '[-] 删除 Provider', value: 'remove' },
-            { name: '[<] 返回', value: 'back' }
-        ]
-    );
+    const action = await select('选择操作', 'list', [
+        { name: '[list] 查看已配置的 Providers', value: 'list' },
+        { name: '[+] 添加新的 Provider', value: 'add' },
+        { name: '[~] 切换默认 Provider', value: 'switch' },
+        { name: '[*] 修改 Provider 配置', value: 'edit' },
+        { name: '[-] 删除 Provider', value: 'remove' },
+        { name: '[<] 返回', value: 'back' }
+    ]);
 
     const config = loadConfig();
     config.$schema = 'https://opencode.ai/config.json';
@@ -529,8 +499,8 @@ const manageProviders = async () => {
 
             const selectedProvider = await select(
                 '选择默认 Provider',
-                providers.find(p => p.isDefault)?.name || providers[0].name,
-                providers.map(p => ({
+                providers.find((p) => p.isDefault)?.name || providers[0].name,
+                providers.map((p) => ({
                     name: `${p.displayName}${p.isDefault ? ' (当前)' : ''}`,
                     value: p.name
                 }))
@@ -555,16 +525,17 @@ const manageProviders = async () => {
             const selectedProvider = await select(
                 '选择要修改的 Provider',
                 providers[0].name,
-                providers.map(p => ({
+                providers.map((p) => ({
                     name: p.displayName,
                     value: p.name
                 }))
             );
 
             // 重新配置该 provider
-            const providerKey = Object.keys(PROVIDERS).find(k =>
-                k === selectedProvider || (k === 'openai-compatible' && selectedProvider === 'openai')
-            ) || selectedProvider;
+            const providerKey =
+                Object.keys(PROVIDERS).find(
+                    (k) => k === selectedProvider || (k === 'openai-compatible' && selectedProvider === 'openai')
+                ) || selectedProvider;
 
             await configureProvider(providerKey, config);
             saveConfig(config);
@@ -582,7 +553,7 @@ const manageProviders = async () => {
             const selectedProvider = await select(
                 '选择要删除的 Provider',
                 providers[0].name,
-                providers.map(p => ({
+                providers.map((p) => ({
                     name: `${p.displayName}${p.isDefault ? ' (默认)' : ''}`,
                     value: p.name
                 }))
@@ -621,20 +592,19 @@ const manageProviders = async () => {
 const launchOpencode = (options = {}) => {
     const args = [];
 
+    // 优先使用命令行参数
     if (options.model) {
         args.push('--model', options.model);
     }
 
-    if (options.provider) {
-        args.push('--provider', options.provider);
-    }
-
+    // 通过 OPENCODE_CONFIG 环境变量指定配置文件路径
     const opencode = spawn('npx', ['opencode-ai', ...args], {
         stdio: 'inherit',
         cwd: process.cwd(),
         env: {
             ...process.env,
-            FORCE_COLOR: '1'
+            FORCE_COLOR: '1',
+            OPENCODE_CONFIG: getConfigPath()
         }
     });
 
@@ -702,8 +672,8 @@ export const ai = async (options = {}) => {
         const config = loadConfig();
         const selectedProvider = await select(
             '选择 Provider',
-            providers.find(p => p.isDefault)?.name || providers[0].name,
-            providers.map(p => ({
+            providers.find((p) => p.isDefault)?.name || providers[0].name,
+            providers.map((p) => ({
                 name: `${p.displayName}${p.isDefault ? ' (当前)' : ''}`,
                 value: p.name
             }))

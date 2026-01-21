@@ -1,8 +1,0 @@
-{
-  "*.{js,ts,cjs,mjs,jsx,tsx,vue}": [
-  "prettier --write",
-],
-    "*.{html,css,scss,less,json}": [
-  "prettier --write"
-]
-}

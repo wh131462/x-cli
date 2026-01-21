@@ -1,52 +1,77 @@
 /**
- * ESLint 配置 - 单项目
+ * ESLint Flat Config - 单项目
+ * @see https://typescript-eslint.io/getting-started
  */
-export const eslintConfigSingle = {
-    env: {
-        browser: true,
-        es2021: true,
-        node: true
+export const eslintConfigSingle = `// @ts-check
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import unusedImports from 'eslint-plugin-unused-imports';
+import globals from 'globals';
+
+export default tseslint.config(
+    eslint.configs.recommended,
+    ...tseslint.configs.recommended,
+    eslintConfigPrettier,
+    {
+        languageOptions: {
+            globals: {
+                ...globals.node,
+                ...globals.es2021
+            }
+        },
+        plugins: {
+            'unused-imports': unusedImports
+        },
+        rules: {
+            'no-case-declarations': 'off',
+            'unused-imports/no-unused-imports': 'error',
+            '@typescript-eslint/no-explicit-any': 'off',
+            '@typescript-eslint/no-unused-vars': 'off'
+        }
     },
-    extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
-    parser: '@typescript-eslint/parser',
-    parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module'
-    },
-    plugins: ['@typescript-eslint', 'unused-imports'],
-    rules: {
-        'no-case-declarations': 'off',
-        'unused-imports/no-unused-imports': 'error',
-        '@typescript-eslint/no-explicit-any': 'off',
-        '@typescript-eslint/no-unused-vars': 'off'
+    {
+        ignores: ['node_modules/', 'dist/', 'build/']
     }
-};
+);
+`;
 
 /**
- * ESLint 配置 - Monorepo
+ * ESLint Flat Config - Monorepo
  */
-export const eslintConfigMonorepo = {
-    root: true,
-    env: {
-        browser: true,
-        es2021: true,
-        node: true
+export const eslintConfigMonorepo = `// @ts-check
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import unusedImports from 'eslint-plugin-unused-imports';
+import globals from 'globals';
+
+export default tseslint.config(
+    eslint.configs.recommended,
+    ...tseslint.configs.recommended,
+    eslintConfigPrettier,
+    {
+        languageOptions: {
+            globals: {
+                ...globals.node,
+                ...globals.es2021
+            }
+        },
+        plugins: {
+            'unused-imports': unusedImports
+        },
+        rules: {
+            'no-case-declarations': 'off',
+            'unused-imports/no-unused-imports': 'error',
+            '@typescript-eslint/no-explicit-any': 'off',
+            '@typescript-eslint/no-unused-vars': 'off'
+        }
     },
-    extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
-    parser: '@typescript-eslint/parser',
-    parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module'
-    },
-    plugins: ['@typescript-eslint', 'unused-imports'],
-    rules: {
-        'no-case-declarations': 'off',
-        'unused-imports/no-unused-imports': 'error',
-        '@typescript-eslint/no-explicit-any': 'off',
-        '@typescript-eslint/no-unused-vars': 'off'
-    },
-    ignorePatterns: ['**/node_modules/**', '**/dist/**', '**/build/**']
-};
+    {
+        ignores: ['**/node_modules/', '**/dist/', '**/build/']
+    }
+);
+`;
 
 /**
  * Prettier 配置
@@ -79,20 +104,15 @@ export const lintStagedConfig = {
 };
 
 /**
- * Husky pre-commit 脚本
+ * Husky pre-commit 脚本 (v9+)
  */
-export const huskyPreCommit = `#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-echo "Running pre-commit checks..."
-npx lint-staged
+export const huskyPreCommit = `npx lint-staged
 `;
 
 /**
- * Husky commit-msg 脚本
+ * Husky commit-msg 脚本 (v9+)
  */
-export const huskyCommitMsg = `#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-npx --no -- commitlint --edit $1
+export const huskyCommitMsg = `npx --no -- commitlint --edit $1
 `;
 
 /**

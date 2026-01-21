@@ -7,19 +7,6 @@
     }
   },
   "default_agent": "x-cli",
-  "provider": {
-    "openai": {
-      "options": {
-        "baseURL": "https://api.openai.com/v1",
-        "apiKey": "<your-openai-api-key>"
-      }
-    },
-    "deepseek": {
-      "options": {
-        "baseURL": "https://api.deepseek.com/v1",
-        "apiKey": "<your-deepseek-api-key>"
-      }
-    }
-  },
+  "provider": {},
   "model": "deepseek/deepseek-reasoner"
 }

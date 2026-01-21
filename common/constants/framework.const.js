@@ -39,6 +39,28 @@ export const FrameworkConfig = {
         commands: {
             'vite-vanilla': (projectName) => `create-vite ${projectName} --template vanilla-ts`
         }
+    },
+    taro: {
+        name: 'Taro',
+        choices: [
+            { name: 'Taro + React (recommended)', value: 'taro-react' },
+            { name: 'Taro + Vue3', value: 'taro-vue3' }
+        ],
+        commands: {
+            'taro-react': (projectName) => `@tarojs/cli init ${projectName} --template=default --framework=react --typescript --npm=npm --auto-install=false`,
+            'taro-vue3': (projectName) => `@tarojs/cli init ${projectName} --template=default --framework=vue3 --typescript --npm=npm --auto-install=false`
+        }
+    },
+    uniapp: {
+        name: 'UniApp',
+        choices: [
+            { name: 'Vue3 + Vite + TS (recommended)', value: 'uniapp-vue3-vite' },
+            { name: 'Vue3 + Vite', value: 'uniapp-vue3-vite-js' }
+        ],
+        commands: {
+            'uniapp-vue3-vite': (projectName) => `degit dcloudio/uni-preset-vue#vite-ts ${projectName}`,
+            'uniapp-vue3-vite-js': (projectName) => `degit dcloudio/uni-preset-vue#vite ${projectName}`
+        }
     }
 };
 
@@ -49,5 +71,7 @@ export const FrameworkChoices = [
     { name: 'Vue', value: 'vue' },
     { name: 'React', value: 'react' },
     { name: 'Angular', value: 'angular' },
-    { name: 'Vanilla (JS/TS)', value: 'vanilla' }
+    { name: 'Vanilla (JS/TS)', value: 'vanilla' },
+    { name: 'Taro (小程序)', value: 'taro' },
+    { name: 'UniApp (小程序)', value: 'uniapp' }
 ];

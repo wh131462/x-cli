@@ -20,6 +20,9 @@
         "cli:publish": "npm run build && cd ./dist && npm publish --registry https://registry.npmjs.com",
         "cli:publish:update": "npm version patch --no-git-tag-version && npm run cli:publish",
         "cli:unpublish": "npm unpublish --force @eternalheart/x-cli",
+        "docs:dev": "npm -C docs run dev",
+        "docs:build": "npm -C docs run build",
+        "docs:preview": "npm -C docs run preview",
         "prepare": "husky",
         "commit": "cz"
     },

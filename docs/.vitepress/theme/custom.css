@@ -1,0 +1,79 @@
+:root {
+  --vp-c-brand-1: #646cff;
+  --vp-c-brand-2: #747bff;
+  --vp-c-brand-3: #8b92ff;
+  --vp-c-brand-soft: rgba(100, 108, 255, 0.14);
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #bd34fe 30%, #41d1ff);
+
+  --vp-home-hero-image-background-image: linear-gradient(-45deg, #bd34fe 50%, #47caff 50%);
+  --vp-home-hero-image-filter: blur(44px);
+}
+
+.dark {
+  --vp-c-brand-1: #747bff;
+  --vp-c-brand-2: #8b92ff;
+  --vp-c-brand-3: #a2a8ff;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --vp-home-hero-image-filter: blur(56px);
+  }
+}
+
+@media (min-width: 960px) {
+  :root {
+    --vp-home-hero-image-filter: blur(68px);
+  }
+}
+
+/* 首页特效 */
+.VPHero .VPImage {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* 功能卡片样式 */
+.VPFeature {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.VPFeature:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* 代码块样式优化 */
+.vp-doc div[class*='language-'] {
+  border-radius: 8px;
+}
+
+/* 表格样式优化 */
+.vp-doc table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.vp-doc tr:hover td {
+  background-color: var(--vp-c-bg-soft);
+}
+
+/* 链接悬浮效果 */
+.vp-doc a {
+  transition: color 0.2s ease;
+}
+
+/* 导航栏样式 */
+.VPNavBar {
+  backdrop-filter: blur(12px);
+}

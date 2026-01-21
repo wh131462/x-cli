@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "x-cli": {
+      "description": "X-CLI AI 助手",
+      "prompt": "你是 X-CLI AI 助手，一个专注于前端开发的智能助手。帮助用户创建和管理前端项目，协助配置开发工具，解答前端开发相关问题。保持简洁、专业的回答风格。"
+    }
+  },
+  "default_agent": "x-cli",
+  "provider": {
+    "openai": {
+      "options": {
+        "baseURL": "https://api.openai.com/v1",
+        "apiKey": "<your-openai-api-key>"
+      }
+    },
+    "deepseek": {
+      "options": {
+        "baseURL": "https://api.deepseek.com/v1",
+        "apiKey": "<your-deepseek-api-key>"
+      }
+    }
+  },
+  "model": "deepseek/deepseek-reasoner"
+}

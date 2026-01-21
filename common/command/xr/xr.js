@@ -1,7 +1,20 @@
 import { logger } from '#common/utils/x/logger.js';
 import { managerExec } from '#common/utils/x/managerExec.js';
-import { getPackageJson } from '#common/utils/file/getPackageJson.js';
 import { executeInteraction } from '#common/utils/node/execute.js';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+/**
+ * 获取当前工作目录的 package.json
+ * @returns {object}
+ */
+const getCwdPackageJson = () => {
+    try {
+        return JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf-8'));
+    } catch {
+        return {};
+    }
+};
 
 /**
  * 检查 package.json 中是否存在指定的 script
@@ -9,7 +22,7 @@ import { executeInteraction } from '#common/utils/node/execute.js';
  * @returns {boolean}
  */
 const hasScript = (scriptName) => {
-    const pkg = getPackageJson();
+    const pkg = getCwdPackageJson();
     return !!(pkg.scripts && pkg.scripts[scriptName]);
 };
 

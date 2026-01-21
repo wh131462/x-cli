@@ -47,8 +47,8 @@ export const FrameworkConfig = {
             { name: 'Taro + Vue3', value: 'taro-vue3' }
         ],
         commands: {
-            'taro-react': (projectName) => `@tarojs/cli init ${projectName} --template=default --framework=react --typescript --npm=npm --auto-install=false`,
-            'taro-vue3': (projectName) => `@tarojs/cli init ${projectName} --template=default --framework=vue3 --typescript --npm=npm --auto-install=false`
+            'taro-react': (projectName) => `@tarojs/cli init ${projectName} --template=default --framework=React --typescript --npm=Yarn --auto-install=false`,
+            'taro-vue3': (projectName) => `@tarojs/cli init ${projectName} --template=default --framework=Vue3 --typescript --npm=Yarn --auto-install=false`
         }
     },
     uniapp: {

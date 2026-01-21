@@ -33,10 +33,6 @@ typings
 # System files
 .DS_Store
 Thumbs.db
-yarn.lock
-package-lock.json
-!docs/package-lock.json
-pnpm-lock.yaml
 
 # Opencode config (contains API keys)
 opencode.json

@@ -581,7 +581,7 @@ const launchOpencode = (options = {}) => {
         args.push('--provider', options.provider);
     }
 
-    const opencode = spawn('npx', ['opencode', ...args], {
+    const opencode = spawn('npx', ['opencode-ai', ...args], {
         stdio: 'inherit',
         cwd: process.cwd(),
         env: {

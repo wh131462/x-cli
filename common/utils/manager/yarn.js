@@ -49,10 +49,11 @@ export const yarnRun = (scriptName, options = {}) => {
 };
 
 /**
- * yarnCreate - 类似npx
+ * yarnDlx - 类似npx (yarn 2+)
  * @param command
  * @returns {Promise<never>|Promise<unknown>}
  */
 export const yarnCreate = (command) => {
-    return executeInteraction(`yarn create -y ${command}`);
+    // yarn dlx 不需要 -y 选项
+    return executeInteraction(`yarn dlx ${command}`);
 };

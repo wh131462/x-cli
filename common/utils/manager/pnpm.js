@@ -40,10 +40,11 @@ export const pnpmRun = (scriptName, options = {}) => {
 };
 
 /**
- * pnpx
+ * pnpx (pnpm dlx)
  * @param command
  * @returns {Promise<never>|Promise<unknown>}
  */
 export const pnpx = (command) => {
-    return executeInteraction(`pnpx -y ${command}`);
+    // pnpm dlx 不需要 -y 选项，默认自动安装
+    return executeInteraction(`pnpm dlx ${command}`);
 };

@@ -57,11 +57,3 @@ export const executeInteraction = (command) => {
 export const executeTogether = (...tasks) => {
     return Promise.allSettled(tasks);
 };
-/**
- * 按顺序执行任务
- * @param tasks {Promise}
- */
-export const executeByOrder = async (...tasks) => {
-    for await (const result of tasks) {
-    }
-};

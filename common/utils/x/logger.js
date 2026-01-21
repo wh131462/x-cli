@@ -1,25 +1,35 @@
 import chalk from 'chalk';
-import { env } from '#common/utils/node/env.js';
-import { createEnum } from '#common/utils/node/enum.js';
+
+const ICONS = {
+    info: '●',
+    warn: '▲',
+    error: '✖',
+    success: '✔',
+    debug: '◆'
+};
+
+const COLORS = {
+    info: { icon: 'cyan', text: 'white' },
+    warn: { icon: 'yellow', text: 'yellow' },
+    error: { icon: 'red', text: 'red' },
+    success: { icon: 'green', text: 'green' },
+    debug: { icon: 'magenta', text: 'magenta' }
+};
 
 class LOGGER {
-    _TypeBg = createEnum(['info', 'bgBlue'], ['warn', 'bgYellow'], ['error', 'bgRedBright']);
-    _logo = (type) =>
-        chalk.bgBlueBright(chalk.whiteBright(` X-CLI `)) + chalk[this._TypeBg[type]](` ${type.toUpperCase()} `);
     isOn = true;
 
-    constructor(_env) {}
+    _prefix = chalk.bold.blueBright('x');
 
-    /**
-     * 开启
-     */
+    _format(type, messages) {
+        const icon = chalk[COLORS[type].icon](ICONS[type]);
+        return [this._prefix, icon, ...messages];
+    }
+
     on() {
         this.isOn = true;
     }
 
-    /**
-     * 关闭
-     */
     off() {
         this.isOn = false;
     }
@@ -28,32 +38,42 @@ class LOGGER {
         return !this.isOn;
     }
 
-    /**
-     * 普通消息
-     * @param messages
-     */
     info(...messages) {
         if (this.forbidden) return;
-        console.log(this._logo('info'), ...messages);
+        console.log(...this._format('info', messages));
     }
 
-    /**
-     * 警告
-     * @param messages
-     */
     warn(...messages) {
         if (this.forbidden) return;
-        console.log(this._logo('warn'), ...messages);
+        console.log(...this._format('warn', messages));
     }
 
-    /**
-     * 错误信息
-     * @param messages
-     */
     error(...messages) {
         if (this.forbidden) return;
-        console.log(this._logo('error'), ...messages);
+        console.log(...this._format('error', messages));
+    }
+
+    success(...messages) {
+        if (this.forbidden) return;
+        console.log(...this._format('success', messages));
+    }
+
+    debug(...messages) {
+        if (this.forbidden) return;
+        console.log(...this._format('debug', messages));
+    }
+
+    /** 无前缀的纯文本输出 */
+    log(...messages) {
+        if (this.forbidden) return;
+        console.log(...messages);
+    }
+
+    /** 空行 */
+    newline() {
+        if (this.forbidden) return;
+        console.log();
     }
 }
 
-export const logger = new LOGGER(env());
+export const logger = new LOGGER();

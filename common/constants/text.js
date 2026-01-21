@@ -1,50 +1,41 @@
 export const Examples = `
 Examples:
-  # Initialize a new project
-  $ x new myProject
+  # Create a new project (Vue/React/Angular)
+  $ x new my-project
 
-  # Create a component inside a specific directory
-  $ x create component myComponent -d src/App
+  # Initialize dev tools in current project
+  $ x plugin init
 
-  # Create a directive
-  $ x create directive myDirective
-
-  # Create a pipe
-  $ x create pipe myPipe
-
-  # Create a service
-  $ x create service myService
-
-  # Create documentation for a component
-  $ x create documentation myComponentDoc
-
-  # Remove a component from a specific directory
-  $ x remove component myComponent -d src/App
-
-  # Remove a service from a specific directory
-  $ x remove service myService -d src/App
-
-  # Remove a directive
-  $ x remove directive myDirective
+  # Install a specific plugin
+  $ x plugin install eslint
 
   # Uninstall a plugin
-  $ x plugin uninstall myPlugin
+  $ x plugin uninstall prettier
 
   # List installed plugins
   $ x plugin list
 
-  # Update x-cli to the latest stable version
+  # Update x-cli to the latest version
   $ x update
 
-  # Install a dependency as a development dependency
-  $ xi myDependency -D
+  # Install a dependency
+  $ xi lodash
 
-  # Install a dependency globally
-  $ xi myDependency -g
+  # Install a dev dependency
+  $ xi typescript -D
+
+  # Install a global dependency
+  $ xi typescript -g
+
+  # Uninstall a dependency
+  $ xu lodash
 
   # Uninstall a global dependency
-  $ xu myDependency -g
+  $ xu typescript -g
 
   # Run a script
   $ xr build
+
+  # Run a script with arguments
+  $ xr test --watch
 `;

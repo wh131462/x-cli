@@ -66,3 +66,42 @@ export const select = (question, defaultValue = null, choices = []) => {
             });
     });
 };
+
+/**
+ * 确认提示
+ * @param question
+ * @param defaultValue
+ * @returns {Promise<boolean>}
+ */
+export const confirm = (question, defaultValue = false) => {
+    return new Promise((resolve, reject) => {
+        inquirer
+            .prompt(
+                [
+                    {
+                        type: 'confirm',
+                        name: 'answer',
+                        message: question,
+                        default: defaultValue
+                    }
+                ],
+                null
+            )
+            .then((answers) => {
+                resolve(answers.answer);
+            })
+            .catch((error) => {
+                reject(error);
+            });
+    });
+};
+
+/**
+ * 输入提示（别名）
+ * @param question
+ * @param defaultValue
+ * @returns {Promise<string>}
+ */
+export const input = (question, defaultValue = '') => {
+    return inquire(question, defaultValue, 'input');
+};

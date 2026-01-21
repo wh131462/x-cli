@@ -1,39 +1,58 @@
 import ora from 'ora';
+import chalk from 'chalk';
+
+const prefix = chalk.bold.blueBright('x');
 
 /**
- * 开始loading
- * @param message
- * @returns {{fail: fail, warn: warn, stop: stop, succeed: succeed, text: (function(*): *), info: info}}
+ * 创建 loading spinner
+ * @param {string} message - 加载提示信息
+ * @param {object} options - 配置项
+ * @param {number} options.delay - 延迟显示时间(ms)，默认 300
+ * @returns {object} spinner 控制对象
  */
-export const startLoading = (message) => {
-    const spinner = ora(message);
+export const startLoading = (message, { delay = 300 } = {}) => {
+    const spinner = ora({
+        text: message,
+        prefixText: prefix,
+        spinner: 'dots',
+        color: 'cyan'
+    });
+
     const timer = setTimeout(() => {
         spinner.start();
-    }, 1500);
-    return {
+    }, delay);
+
+    const loading = {
         stop: () => {
             clearTimeout(timer);
             spinner.stop();
+            return loading;
         },
         text: (newText) => {
             spinner.text = newText;
-            return this;
+            return loading;
         },
-        succeed: (message) => {
+        succeed: (msg) => {
             clearTimeout(timer);
-            spinner.succeed(` ${message}`);
+            spinner.succeed(msg);
+            return loading;
         },
-        fail: (message) => {
+        fail: (msg) => {
             clearTimeout(timer);
-            spinner.fail(` ${message}`);
+            spinner.fail(msg);
+            return loading;
         },
-        warn: (message) => {
+        warn: (msg) => {
             clearTimeout(timer);
-            spinner.warn(` ${message}`);
+            spinner.warn(msg);
+            return loading;
         },
-        info: (message) => {
+        info: (msg) => {
             clearTimeout(timer);
-            spinner.info(` ${message}`);
+            spinner.info(msg);
+            return loading;
         }
     };
+
+    return loading;
 };

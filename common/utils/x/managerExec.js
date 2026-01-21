@@ -3,9 +3,9 @@ import { getManagerByName, getManagerName } from '#common/utils/manager/manager.
 import { DefaultManager } from '#common/constants/manager.const.js';
 
 /**
- * 执行manager 尝试适配
- * @returns {Promise<void>}
+ * 执行 manager 操作
  * @param callback
+ * @returns {Promise<void>}
  */
 export const managerExec = async (callback) => {
     let managerName;
@@ -16,6 +16,8 @@ export const managerExec = async (callback) => {
     } catch (e) {
         managerName = DefaultManager;
     } finally {
-        await callback?.(getManagerByName(managerName));
+        const manager = getManagerByName(managerName);
+        logger.info(`Using package manager: ${managerName}`);
+        await callback?.(manager);
     }
 };

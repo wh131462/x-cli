@@ -46,5 +46,8 @@ pnpm-debug.log*
 coverage/
 .nyc_output/
 
+# Local config
+opencode.json
+
 # Misc
 *.local

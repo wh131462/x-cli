@@ -6,6 +6,7 @@
 import { spawn } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { select, input, confirm } from '#common/utils/ui/promot.js';
 import { logger } from '#common/utils/x/logger.js';
 import { rootPath } from '#common/utils/file/path.js';
@@ -172,6 +173,38 @@ const loadConfig = () => {
 const saveConfig = (config) => {
     const configPath = getConfigPath();
     writeFileSync(configPath, JSON.stringify(config, null, 2));
+};
+
+/**
+ * 确保基础配置文件存在
+ * 如果 opencode.json 不存在，则从 opencode.example.json 生成基础配置
+ */
+const ensureBaseConfig = () => {
+    const configPath = getConfigPath();
+
+    // 如果配置文件已存在，直接返回
+    if (existsSync(configPath)) {
+        return;
+    }
+
+    // 从模板文件生成基础配置
+    const exampleConfig = loadExampleConfig();
+    const baseConfig = {
+        $schema: 'https://opencode.ai/config.json',
+        // 复制样式配置
+        ...(exampleConfig.theme && { theme: exampleConfig.theme }),
+        ...(exampleConfig.username && { username: exampleConfig.username }),
+        ...(exampleConfig.tui && { tui: exampleConfig.tui }),
+        ...(exampleConfig.keybinds && { keybinds: exampleConfig.keybinds }),
+        // 复制 agent 配置
+        ...(exampleConfig.agent && { agent: exampleConfig.agent }),
+        ...(exampleConfig.default_agent && { default_agent: exampleConfig.default_agent }),
+        // 空的 provider 和 model，等待用户配置
+        provider: {},
+        model: ''
+    };
+
+    saveConfig(baseConfig);
 };
 
 /**
@@ -427,13 +460,29 @@ const configWizard = async () => {
         console.log(`✓ 默认模型: ${config.model}\n`);
     }
 
-    // 从模板文件读取 X-Agent 配置
+    // 从模板文件读取默认配置 (agent、样式等)
     const exampleConfig = loadExampleConfig();
+
+    // 合并 agent 配置
     if (exampleConfig.agent) {
         config.agent = { ...config.agent, ...exampleConfig.agent };
     }
     if (exampleConfig.default_agent) {
         config.default_agent = exampleConfig.default_agent;
+    }
+
+    // 合并样式配置 (仅在用户未配置时使用模板默认值)
+    if (exampleConfig.theme && !config.theme) {
+        config.theme = exampleConfig.theme;
+    }
+    if (exampleConfig.username && !config.username) {
+        config.username = exampleConfig.username;
+    }
+    if (exampleConfig.tui && !config.tui) {
+        config.tui = exampleConfig.tui;
+    }
+    if (exampleConfig.keybinds && !config.keybinds) {
+        config.keybinds = exampleConfig.keybinds;
     }
 
     // 保存配置
@@ -587,6 +636,24 @@ const manageProviders = async () => {
 };
 
 /**
+ * 获取本地 opencode 可执行文件路径
+ */
+const getOpencodeBinPath = () => {
+    try {
+        // 使用 import.meta.resolve 定位 opencode-ai 包的 package.json
+        const packageJsonPath = import.meta.resolve('opencode-ai/package.json');
+        // packageJsonPath 格式: file:///path/to/node_modules/opencode-ai/package.json
+        const packageDir = fileURLToPath(new URL('.', packageJsonPath));
+        const binPath = resolve(packageDir, 'bin', 'opencode');
+        return binPath;
+    } catch {
+        // 回退：尝试从 rootPath 查找
+        const binName = process.platform === 'win32' ? 'opencode.cmd' : 'opencode';
+        return resolve(rootPath, 'node_modules', '.bin', binName);
+    }
+};
+
+/**
  * 启动 OpenCode TUI
  */
 const launchOpencode = (options = {}) => {
@@ -597,8 +664,18 @@ const launchOpencode = (options = {}) => {
         args.push('--model', options.model);
     }
 
+    // 获取本地安装的 opencode 可执行文件路径
+    const opencodeBin = getOpencodeBinPath();
+
+    // 检查可执行文件是否存在
+    if (!existsSync(opencodeBin)) {
+        logger.error(`未找到 opencode: ${opencodeBin}`);
+        logger.error('请尝试重新安装 @eternalheart/x-cli');
+        process.exit(1);
+    }
+
     // 通过 OPENCODE_CONFIG 环境变量指定配置文件路径
-    const opencode = spawn('npx', ['opencode-ai', ...args], {
+    const opencode = spawn(opencodeBin, args, {
         stdio: 'inherit',
         cwd: process.cwd(),
         env: {
@@ -627,6 +704,9 @@ const launchOpencode = (options = {}) => {
  * @param {boolean} [options.manage] - 进入管理模式
  */
 export const ai = async (options = {}) => {
+    // 确保基础配置文件存在（首次运行时生成）
+    ensureBaseConfig();
+
     // Provider 管理模式
     if (options.manage) {
         await manageProviders();

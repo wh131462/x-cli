@@ -124,7 +124,7 @@ const PROVIDERS = {
     },
     // 自定义 Provider 模板 (用于添加新的自定义 provider)
     __custom__: {
-        name: '➕ 自定义 Provider (OpenAI 兼容)',
+        name: '自定义 Provider (OpenAI 兼容)',
         envKey: null,
         models: [],
         supportsBaseUrl: true,
@@ -424,39 +424,55 @@ const configureCustomProvider = async () => {
     // 4. 输入 API Key
     const apiKey = await input('API Key:');
 
-    // 5. 输入模型列表
-    console.log('\n输入模型名称 (每行一个，输入空行结束):');
+    // 5. 获取模型列表 (优先从 API 获取)
     const models = [];
-    let modelInput = await input('模型 1:');
-    while (modelInput) {
-        models.push(modelInput);
-        modelInput = await input(`模型 ${models.length + 1}:`);
-    }
 
-    if (models.length === 0) {
-        // 尝试从 API 获取模型列表
-        if (apiKey) {
-            console.log('\n未输入模型，尝试从 API 获取...');
-            const apiModels = await fetchModelsFromApi(baseUrl, apiKey);
-            if (apiModels.length > 0) {
-                console.log(`获取到 ${apiModels.length} 个模型`);
-                // 让用户选择要添加的模型
-                const selectModels = await confirm('是否选择要添加的模型?', true);
-                if (selectModels) {
-                    console.log('\n选择要添加的模型 (输入序号，多个用逗号分隔，如: 1,3,5):');
-                    apiModels.forEach((m, i) => console.log(`  ${i + 1}. ${m}`));
-                    const selection = await input('选择:');
-                    if (selection) {
-                        const indices = selection.split(',').map((s) => parseInt(s.trim()) - 1);
-                        indices.forEach((i) => {
-                            if (apiModels[i]) models.push(apiModels[i]);
-                        });
-                    }
+    // 尝试从 API 获取模型列表
+    if (apiKey && baseUrl) {
+        const apiModels = await fetchModelsFromApi(baseUrl, apiKey);
+        if (apiModels.length > 0) {
+            // 让用户选择要添加的模型
+            console.log('\n选择要添加的模型 (输入序号，多个用逗号分隔，如: 1,3,5，直接回车选择全部):');
+            apiModels.forEach((m, i) => console.log(`  ${i + 1}. ${m}`));
+            console.log(`  0. 手动输入模型名称`);
+            const selection = await input('选择:', '全部');
+            if (selection === '0') {
+                // 用户选择手动输入
+                console.log('\n输入模型名称 (每行一个，输入空行结束):');
+                let modelInput = await input('模型 1:');
+                while (modelInput) {
+                    models.push(modelInput);
+                    modelInput = await input(`模型 ${models.length + 1}:`);
+                }
+            } else if (selection === '全部' || selection === '') {
+                // 选择全部模型
+                models.push(...apiModels);
+                console.log(`✓ 已添加全部 ${apiModels.length} 个模型\n`);
+            } else {
+                // 选择特定模型
+                const indices = selection.split(',').map((s) => parseInt(s.trim()) - 1);
+                indices.forEach((i) => {
+                    if (apiModels[i]) models.push(apiModels[i]);
+                });
+                if (models.length > 0) {
+                    console.log(`✓ 已添加 ${models.length} 个模型\n`);
                 }
             }
+        } else {
+            console.log('\n[!] 无法从 API 获取模型列表，请手动输入\n');
+        }
+    }
+
+    // 如果 API 获取失败或未配置 API Key，手动输入
+    if (models.length === 0) {
+        console.log('输入模型名称 (每行一个，输入空行结束):');
+        let modelInput = await input('模型 1:');
+        while (modelInput) {
+            models.push(modelInput);
+            modelInput = await input(`模型 ${models.length + 1}:`);
         }
 
-        // 如果还是没有模型，让用户手动输入一个
+        // 如果还是没有模型，提示必须输入一个
         if (models.length === 0) {
             const defaultModel = await input('请至少输入一个模型名称:');
             if (defaultModel) models.push(defaultModel);

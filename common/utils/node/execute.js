@@ -19,7 +19,13 @@ export const execute = (command) => {
     logger.info(command);
     const loader = startLoading(command);
     return new Promise((resolve) => {
-        exec(command, (error, stdout, stderr) => {
+        // 跨平台 shell 配置
+        const options = {
+            shell: process.platform === 'win32' ? 'cmd.exe' : '/bin/sh',
+            windowsHide: process.platform === 'win32'
+        };
+
+        exec(command, options, (error, stdout, stderr) => {
             if (error) resolve(false);
             resolve(stdout);
         });
@@ -35,11 +41,14 @@ export const executeInteraction = (command) => {
     logger.info(command);
     return new Promise((resolve, reject) => {
         const [core, ...params] = command.split(/\s+/).filter((o) => o);
+
+        // 跨平台 shell 配置
         const thread = spawn(core, params, {
-            stdio: 'inherit', // 继承父进程的文件描述符（stdin, stdout, stderr）
-            shell: true // 使用shell来执行命令
+            stdio: 'inherit',
+            shell: process.platform === 'win32' ? 'cmd.exe' : '/bin/sh',
+            windowsHide: process.platform === 'win32'
         });
-        // 监听子进程退出事件
+
         thread.on('close', (code) => {
             if (code === 0) {
                 resolve(true);

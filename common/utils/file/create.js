@@ -1,6 +1,7 @@
 import { logger } from '#common/utils/x/logger.js';
 import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { dirname } from 'node:path';
 
 /**
  * 创建路径 - 无视路径
@@ -23,7 +24,7 @@ export const createDir = async (path) => {
  */
 export const createFile = async (filePath, content) => {
     logger.info(`creating file:${filePath}`);
-    const dir = filePath.substring(0, filePath.lastIndexOf('/'));
+    const dir = dirname(filePath);
     await createDir(dir);
     await writeFile(filePath, content);
 };

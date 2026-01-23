@@ -639,16 +639,20 @@ const manageProviders = async () => {
  * 获取本地 opencode 可执行文件路径
  */
 const getOpencodeBinPath = () => {
+    // Windows 上使用 .bin/opencode.cmd，Unix 上使用 .bin/opencode
+    const binName = process.platform === 'win32' ? 'opencode.cmd' : 'opencode';
+
     try {
         // 使用 import.meta.resolve 定位 opencode-ai 包的 package.json
         const packageJsonPath = import.meta.resolve('opencode-ai/package.json');
         // packageJsonPath 格式: file:///path/to/node_modules/opencode-ai/package.json
         const packageDir = fileURLToPath(new URL('.', packageJsonPath));
-        const binPath = resolve(packageDir, 'bin', 'opencode');
+        // 从包目录向上找到 node_modules，再找 .bin
+        const nodeModulesDir = resolve(packageDir, '..');
+        const binPath = resolve(nodeModulesDir, '.bin', binName);
         return binPath;
     } catch {
         // 回退：尝试从 rootPath 查找
-        const binName = process.platform === 'win32' ? 'opencode.cmd' : 'opencode';
         return resolve(rootPath, 'node_modules', '.bin', binName);
     }
 };
@@ -675,9 +679,11 @@ const launchOpencode = (options = {}) => {
     }
 
     // 通过 OPENCODE_CONFIG 环境变量指定配置文件路径
+    // Windows 上执行 .cmd 文件需要 shell: true
     const opencode = spawn(opencodeBin, args, {
         stdio: 'inherit',
         cwd: process.cwd(),
+        shell: process.platform === 'win32',
         env: {
             ...process.env,
             FORCE_COLOR: '1',

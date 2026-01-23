@@ -4,9 +4,10 @@
  */
 
 import { spawn } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { homedir } from 'node:os';
 import { select, input, confirm } from '#common/utils/ui/promot.js';
 import { logger } from '#common/utils/x/logger.js';
 import { rootPath } from '#common/utils/file/path.js';
@@ -114,12 +115,21 @@ const PROVIDERS = {
         defaultBaseUrl: 'http://localhost:11434/v1',
         noApiKey: true
     },
-    'openai-compatible': {
-        name: 'OpenAI 兼容 API (自定义)',
-        envKey: 'OPENAI_API_KEY',
+    openrouter: {
+        name: 'OpenRouter',
+        envKey: 'OPENROUTER_API_KEY',
+        models: ['anthropic/claude-sonnet-4', 'openai/gpt-4o', 'google/gemini-2.0-flash-exp'],
+        supportsBaseUrl: true,
+        defaultBaseUrl: 'https://openrouter.ai/api/v1'
+    },
+    // 自定义 Provider 模板 (用于添加新的自定义 provider)
+    __custom__: {
+        name: '➕ 自定义 Provider (OpenAI 兼容)',
+        envKey: null,
         models: [],
         supportsBaseUrl: true,
-        requiresBaseUrl: true
+        requiresBaseUrl: true,
+        isCustomTemplate: true
     }
 };
 
@@ -135,6 +145,46 @@ const getConfigPath = () => {
  */
 const getExampleConfigPath = () => {
     return resolve(rootPath, 'opencode.example.json');
+};
+
+/**
+ * 获取 OpenCode 官方 auth.json 路径
+ * 遵循 XDG 规范: ~/.local/share/opencode/auth.json
+ */
+const getAuthPath = () => {
+    const home = homedir();
+    const dataDir = resolve(home, '.local', 'share', 'opencode');
+    return resolve(dataDir, 'auth.json');
+};
+
+/**
+ * 读取 auth.json
+ */
+const loadAuth = () => {
+    const authPath = getAuthPath();
+    if (existsSync(authPath)) {
+        try {
+            return JSON.parse(readFileSync(authPath, 'utf-8'));
+        } catch {
+            return {};
+        }
+    }
+    return {};
+};
+
+/**
+ * 保存 auth.json
+ */
+const saveAuth = (auth) => {
+    const authPath = getAuthPath();
+    const authDir = dirname(authPath);
+
+    // 确保目录存在
+    if (!existsSync(authDir)) {
+        mkdirSync(authDir, { recursive: true });
+    }
+
+    writeFileSync(authPath, JSON.stringify(auth, null, 2));
 };
 
 /**
@@ -226,7 +276,13 @@ const isConfigured = () => {
         return true;
     }
 
-    // 检查配置文件
+    // 检查 auth.json (OpenCode 官方存储位置)
+    const auth = loadAuth();
+    if (Object.keys(auth).length > 0) {
+        return true;
+    }
+
+    // 检查配置文件中的 apiKey
     const config = loadConfig();
     if (config.provider) {
         for (const [providerName, providerConfig] of Object.entries(config.provider)) {
@@ -245,20 +301,47 @@ const isConfigured = () => {
 
 /**
  * 获取已配置的 providers 列表
+ * 同时从 opencode.json 和 auth.json 读取
  */
 const getConfiguredProviders = () => {
     const config = loadConfig();
+    const auth = loadAuth();
     const providers = [];
+    const seenProviders = new Set();
 
+    // 从 config.provider 读取
     if (config.provider) {
         for (const [name, providerConfig] of Object.entries(config.provider)) {
+            const isDefault = config.model?.startsWith(`${name}/`);
+            const hasAuthKey = !!auth[name]?.key;
+            const hasConfigKey = !!providerConfig.options?.apiKey;
+            seenProviders.add(name);
+            providers.push({
+                name,
+                displayName: PROVIDERS[name]?.name || providerConfig.name || name,
+                hasApiKey: hasAuthKey || hasConfigKey,
+                authSource: hasAuthKey ? 'auth.json' : hasConfigKey ? 'config' : null,
+                baseUrl: providerConfig.options?.baseURL,
+                isDefault,
+                inConfig: true,
+                inAuth: hasAuthKey
+            });
+        }
+    }
+
+    // 从 auth.json 读取（补充未在 config 中的 provider）
+    for (const [name, authConfig] of Object.entries(auth)) {
+        if (!seenProviders.has(name) && authConfig.key) {
             const isDefault = config.model?.startsWith(`${name}/`);
             providers.push({
                 name,
                 displayName: PROVIDERS[name]?.name || name,
-                hasApiKey: !!providerConfig.options?.apiKey,
-                baseUrl: providerConfig.options?.baseURL,
-                isDefault
+                hasApiKey: true,
+                authSource: 'auth.json',
+                baseUrl: PROVIDERS[name]?.defaultBaseUrl || null,
+                isDefault,
+                inConfig: false,
+                inAuth: true
             });
         }
     }
@@ -275,21 +358,112 @@ const listConfiguredProviders = () => {
 
     if (providers.length === 0) {
         console.log('\n[list] 尚未配置任何 Provider\n');
+        console.log('  auth.json: ' + getAuthPath());
+        console.log('  config: ' + getConfigPath() + '\n');
         return;
     }
 
     console.log('\n[list] 已配置的 Providers:\n');
     providers.forEach((p, i) => {
         const defaultMark = p.isDefault ? ' *(默认)' : '';
-        const keyStatus = p.hasApiKey ? '✓ Key' : PROVIDERS[p.name]?.noApiKey ? '无需 Key' : '✗ Key';
+        let keyStatus = '';
+        if (PROVIDERS[p.name]?.noApiKey) {
+            keyStatus = '无需 Key';
+        } else if (p.hasApiKey) {
+            keyStatus = `✓ Key (${p.authSource})`;
+        } else {
+            keyStatus = '✗ Key';
+        }
         const baseUrl = p.baseUrl ? ` | ${p.baseUrl}` : '';
-        console.log(`  ${i + 1}. ${p.displayName}${defaultMark}`);
+        const configStatus = p.inConfig ? '' : ' [仅 auth]';
+        console.log(`  ${i + 1}. ${p.displayName}${defaultMark}${configStatus}`);
         console.log(`     ${keyStatus}${baseUrl}\n`);
     });
 
     if (config.model) {
         console.log(`  当前模型: ${config.model}\n`);
     }
+
+    console.log(`  [auth.json] ${getAuthPath()}`);
+    console.log(`  [config]    ${getConfigPath()}\n`);
+};
+
+/**
+ * 配置自定义 Provider
+ * @returns {Promise<{providerId: string, displayName: string, baseUrl: string, models: string[]}>}
+ */
+const configureCustomProvider = async () => {
+    console.log('\n[自定义 Provider 配置]\n');
+    console.log('提示: 自定义 Provider 需要支持 OpenAI 兼容 API\n');
+
+    // 1. 输入 Provider ID (用于配置文件和 auth.json)
+    const providerId = await input('Provider ID (小写字母、数字、短横线):', 'my-provider');
+
+    // 验证 ID 格式
+    if (!/^[a-z0-9-]+$/.test(providerId)) {
+        console.log('\n✗ ID 格式无效，只能包含小写字母、数字和短横线\n');
+        return null;
+    }
+
+    // 检查是否与内置 provider 冲突
+    if (PROVIDERS[providerId] && !PROVIDERS[providerId].isCustomTemplate) {
+        console.log(`\n✗ ID "${providerId}" 与内置 Provider 冲突，请使用其他名称\n`);
+        return null;
+    }
+
+    // 2. 输入显示名称
+    const displayName = await input('显示名称:', providerId);
+
+    // 3. 输入 API 地址
+    const baseUrl = await input('API 地址 (baseURL):', 'https://api.example.com/v1');
+    if (!baseUrl) {
+        console.log('\n✗ API 地址不能为空\n');
+        return null;
+    }
+
+    // 4. 输入 API Key
+    const apiKey = await input('API Key:');
+
+    // 5. 输入模型列表
+    console.log('\n输入模型名称 (每行一个，输入空行结束):');
+    const models = [];
+    let modelInput = await input('模型 1:');
+    while (modelInput) {
+        models.push(modelInput);
+        modelInput = await input(`模型 ${models.length + 1}:`);
+    }
+
+    if (models.length === 0) {
+        // 尝试从 API 获取模型列表
+        if (apiKey) {
+            console.log('\n未输入模型，尝试从 API 获取...');
+            const apiModels = await fetchModelsFromApi(baseUrl, apiKey);
+            if (apiModels.length > 0) {
+                console.log(`获取到 ${apiModels.length} 个模型`);
+                // 让用户选择要添加的模型
+                const selectModels = await confirm('是否选择要添加的模型?', true);
+                if (selectModels) {
+                    console.log('\n选择要添加的模型 (输入序号，多个用逗号分隔，如: 1,3,5):');
+                    apiModels.forEach((m, i) => console.log(`  ${i + 1}. ${m}`));
+                    const selection = await input('选择:');
+                    if (selection) {
+                        const indices = selection.split(',').map((s) => parseInt(s.trim()) - 1);
+                        indices.forEach((i) => {
+                            if (apiModels[i]) models.push(apiModels[i]);
+                        });
+                    }
+                }
+            }
+        }
+
+        // 如果还是没有模型，让用户手动输入一个
+        if (models.length === 0) {
+            const defaultModel = await input('请至少输入一个模型名称:');
+            if (defaultModel) models.push(defaultModel);
+        }
+    }
+
+    return { providerId, displayName, baseUrl, apiKey, models };
 };
 
 /**
@@ -354,10 +528,18 @@ const configureProvider = async (providerKey, config) => {
 
     // API Key 配置
     if (!provider.noApiKey) {
+        const auth = loadAuth();
+        const existingAuthKey = auth[actualProviderKey]?.key;
         const envKey = provider.envKey ? process.env[provider.envKey] : null;
         let apiKey = '';
 
-        if (envKey) {
+        if (existingAuthKey) {
+            console.log(`已检测到 auth.json 中的 API Key (${actualProviderKey})`);
+            const keepExisting = await confirm('保持现有 API Key?', true);
+            if (!keepExisting) {
+                apiKey = await input('请输入新的 API Key:');
+            }
+        } else if (envKey) {
             console.log(`已检测到环境变量 ${provider.envKey}`);
             const useEnv = await confirm('使用环境变量中的 API Key?', true);
             if (!useEnv) {
@@ -368,8 +550,15 @@ const configureProvider = async (providerKey, config) => {
         }
 
         if (apiKey) {
-            config.provider[actualProviderKey].options.apiKey = apiKey;
-            console.log('✓ API Key 已保存\n');
+            // 保存到 auth.json (OpenCode 官方存储位置)
+            auth[actualProviderKey] = {
+                type: 'api',
+                key: apiKey
+            };
+            saveAuth(auth);
+            console.log('✓ API Key 已保存到 auth.json\n');
+        } else if (existingAuthKey) {
+            console.log('✓ 保持现有 API Key\n');
         }
     } else {
         console.log('✓ 此提供者无需 API Key\n');
@@ -379,7 +568,7 @@ const configureProvider = async (providerKey, config) => {
 };
 
 /**
- * 选择模型 (支持预设列表 + API获取 + 自定义输入)
+ * 选择模型 (支持预设列表 + 配置文件模型 + API获取 + 自定义输入)
  * @param {string} providerKey - Provider key
  * @param {string} currentModel - 当前模型
  * @param {object} config - 配置对象 (可选，用于从 API 获取模型列表)
@@ -387,16 +576,23 @@ const configureProvider = async (providerKey, config) => {
 const selectModel = async (providerKey, currentModel = '', config = null) => {
     const provider = PROVIDERS[providerKey];
     const defaultModel = providerKey === 'ollama' ? 'llama3.2' : 'gpt-4o';
-    const actualProviderKey = providerKey === 'openai-compatible' ? 'openai' : providerKey;
+
+    // 从配置文件中获取模型列表 (自定义 provider)
+    let configModels = [];
+    if (config?.provider?.[providerKey]?.models) {
+        configModels = Object.keys(config.provider[providerKey].models);
+    }
 
     // 尝试从 API 获取模型列表
     let apiModels = [];
     if (config) {
-        const providerConfig = config.provider?.[actualProviderKey];
+        const providerConfig = config.provider?.[providerKey];
         const baseUrl = providerConfig?.options?.baseURL;
-        const apiKey = providerConfig?.options?.apiKey;
+        // 从 auth.json 获取 API Key
+        const auth = loadAuth();
+        const apiKey = auth[providerKey]?.key || providerConfig?.options?.apiKey;
 
-        if (baseUrl && apiKey) {
+        if (baseUrl && apiKey && configModels.length === 0) {
             const shouldFetch = await confirm('是否从 API 获取可用模型列表?', true);
             if (shouldFetch) {
                 apiModels = await fetchModelsFromApi(baseUrl, apiKey);
@@ -404,8 +600,9 @@ const selectModel = async (providerKey, currentModel = '', config = null) => {
         }
     }
 
-    // 优先使用 API 获取的模型，其次预设模型
-    const availableModels = apiModels.length > 0 ? apiModels : provider?.models || [];
+    // 优先使用配置文件模型，其次 API 模型，最后预设模型
+    const availableModels =
+        configModels.length > 0 ? configModels : apiModels.length > 0 ? apiModels : provider?.models || [];
 
     // 如果没有可用模型，直接输入
     if (availableModels.length === 0) {
@@ -519,19 +716,67 @@ const manageProviders = async () => {
             const providerKey = await select(
                 '选择要添加的 Provider',
                 'anthropic',
-                Object.entries(PROVIDERS).map(([key, value]) => ({
-                    name: value.name,
-                    value: key
-                }))
+                Object.entries(PROVIDERS)
+                    .filter(([key]) => key !== '__custom__')
+                    .map(([key, value]) => ({
+                        name: value.name,
+                        value: key
+                    }))
+                    .concat([{ name: PROVIDERS.__custom__.name, value: '__custom__' }])
             );
 
-            const { actualProviderKey } = await configureProvider(providerKey, config);
+            let actualProviderKey;
+            let defaultModel = '';
+
+            if (providerKey === '__custom__') {
+                // 自定义 Provider 配置流程
+                const customConfig = await configureCustomProvider();
+                if (!customConfig) {
+                    console.log('\n✗ 自定义 Provider 配置取消\n');
+                    break;
+                }
+
+                const { providerId, displayName, baseUrl, apiKey, models } = customConfig;
+                actualProviderKey = providerId;
+
+                // 保存到 opencode.json
+                config.provider = config.provider || {};
+                config.provider[providerId] = {
+                    npm: '@ai-sdk/openai-compatible',
+                    name: displayName,
+                    options: {
+                        baseURL: baseUrl
+                    },
+                    models: {}
+                };
+
+                // 添加模型配置
+                models.forEach((m) => {
+                    config.provider[providerId].models[m] = { name: m };
+                });
+
+                // 保存 API Key 到 auth.json
+                if (apiKey) {
+                    const auth = loadAuth();
+                    auth[providerId] = { type: 'api', key: apiKey };
+                    saveAuth(auth);
+                    console.log('\n✓ API Key 已保存到 auth.json');
+                }
+
+                defaultModel = models[0] || '';
+                console.log(`✓ Provider "${displayName}" 配置完成\n`);
+            } else {
+                // 内置 Provider 配置流程
+                const result = await configureProvider(providerKey, config);
+                actualProviderKey = result.actualProviderKey;
+            }
 
             // 询问是否设为默认
             const setDefault = await confirm('设为默认 Provider?', true);
             if (setDefault) {
-                const model = await selectModel(providerKey, '', config);
+                const model = await selectModel(actualProviderKey, defaultModel, config);
                 config.model = `${actualProviderKey}/${model}`;
+                console.log(`✓ 默认模型: ${config.model}`);
             }
 
             saveConfig(config);
@@ -603,22 +848,41 @@ const manageProviders = async () => {
                 '选择要删除的 Provider',
                 providers[0].name,
                 providers.map((p) => ({
-                    name: `${p.displayName}${p.isDefault ? ' (默认)' : ''}`,
+                    name: `${p.displayName}${p.isDefault ? ' (默认)' : ''}${p.inAuth ? ' [auth]' : ''}${p.inConfig ? ' [config]' : ''}`,
                     value: p.name
                 }))
             );
 
+            const providerInfo = providers.find((p) => p.name === selectedProvider);
+            const deleteOptions = [];
+            if (providerInfo?.inAuth) deleteOptions.push('auth.json 中的 API Key');
+            if (providerInfo?.inConfig) deleteOptions.push('opencode.json 中的配置');
+
+            console.log(`\n将删除: ${deleteOptions.join(' 和 ')}`);
             const confirmDelete = await confirm(`确定删除 ${selectedProvider}?`, false);
             if (confirmDelete) {
-                delete config.provider[selectedProvider];
+                // 删除 auth.json 中的 key
+                if (providerInfo?.inAuth) {
+                    const auth = loadAuth();
+                    delete auth[selectedProvider];
+                    saveAuth(auth);
+                    console.log('✓ 已从 auth.json 删除 API Key');
+                }
+
+                // 删除 config 中的 provider
+                if (providerInfo?.inConfig && config.provider?.[selectedProvider]) {
+                    delete config.provider[selectedProvider];
+                    console.log('✓ 已从 opencode.json 删除配置');
+                }
 
                 // 如果删除的是默认 provider，清空 model
                 if (config.model?.startsWith(`${selectedProvider}/`)) {
                     delete config.model;
+                    console.log('✓ 已清空默认模型设置');
                 }
 
                 saveConfig(config);
-                console.log('✓ Provider 已删除\n');
+                console.log('');
             }
             break;
         }

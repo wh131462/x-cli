@@ -12,10 +12,15 @@ program
     .option('-g,--global', 'Save as global dependency')
     .description('Install or uninstall a dependency in the project.')
     .allowUnknownOption(true)
-    .action((packageName, { saveDev, global }) => {
-        xi(program.args, saveDev, global)
+    .action((_packageName, { saveDev, global }) => {
+        const packages = program.args.length ? program.args : undefined;
+        xi(packages, saveDev, global)
             .then(() => {
-                logger.info(`The ${`[${program.args.toString()}]` ?? 'packages'} have been installed successfully.`);
+                logger.info(
+                    packages
+                        ? `The [${packages}] have been installed successfully.`
+                        : 'Dependencies installed successfully.'
+                );
                 process.exit(0);
             })
             .catch(() => process.exit(1));

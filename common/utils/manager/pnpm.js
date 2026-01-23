@@ -7,7 +7,13 @@ import { execute, executeInteraction } from '#common/utils/node/execute.js';
  * @constructor
  */
 export const PNPM_INSTALL = () => {
-    return execute('curl -fsSL https://get.pnpm.io/install.sh | sh -');
+    if (process.platform === 'win32') {
+        // Windows: 使用 npm 安装（最可靠）
+        return execute('npm install -g pnpm');
+    } else {
+        // Unix: 使用官方安装脚本
+        return execute('curl -fsSL https://get.pnpm.io/install.sh | sh -');
+    }
 };
 // 使用pnpm安装包
 export const pnpmInstall = (packageName, isDev = false, isGlobal = false, option = {}) => {

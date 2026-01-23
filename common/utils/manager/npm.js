@@ -76,9 +76,16 @@ export const npmRun = (scriptName, options = {}) => {
 export const npmHas = async (packageName, isGlobal = false) => {
     const command = `npm list ${nameConverter(packageName)} ${isGlobal ? '-g' : ''} --depth=0`;
     logger.off();
-    const res = await execute(`${command} | grep ${packageName}`);
+    const res = await execute(command);
     logger.on();
-    return typeof res === 'boolean' ? res : res.toString()?.trim()?.includes(packageName);
+
+    if (res === false) {
+        return false; // 命令执行失败
+    }
+
+    // 直接检查输出中是否包含包名
+    const output = res.toString().trim();
+    return output.includes(packageName);
 };
 /**
  * npx

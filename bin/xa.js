@@ -13,12 +13,14 @@ program
     .option('-m, --model [model]', 'Model to use (interactive selection if not specified)')
     .option('-c, --config', 'Run configuration wizard')
     .option('--manage', 'Manage multiple providers (add/switch/edit/remove)')
+    .option('--info', 'Display configuration information')
+    .option('-v, --verbose', 'Show detailed configuration information (use with --info)')
+    .option('--test', 'Test provider connectivity and API type detection')
     .action((options) => {
-        ai(options)
-            .catch((error) => {
-                logger.error(error.message);
-                process.exit(1);
-            });
+        ai(options).catch((error) => {
+            logger.error(error.message);
+            process.exit(1);
+        });
     });
 
 program.parse(process.argv);

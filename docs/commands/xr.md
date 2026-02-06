@@ -5,19 +5,39 @@
 ## 用法
 
 ```bash
-xr <script> [args...]
+xr [script] [args...]
 ```
 
 ## 参数
 
-| 参数 | 描述 |
-|------|------|
-| `script` | package.json 中定义的脚本名称 |
-| `args` | 传递给脚本的额外参数 |
+| 参数     | 描述                                  |
+| -------- | ------------------------------------- |
+| `script` | package.json 中定义的脚本名称（可选） |
+| `args`   | 传递给脚本的额外参数                  |
+
+## 交互式选择
+
+当不指定脚本名称时，`xr` 会列出当前项目 `package.json` 中所有可用的脚本，支持上下键选择后执行：
+
+```bash
+# 进入交互式选择模式
+xr
+
+# 输出示例：
+# ? 请选择要运行的脚本: (Use arrow keys)
+# ❯ dev                  → vite
+#   build                → vite build
+#   preview              → vite preview
+#   test                 → vitest
+#   lint                 → eslint .
+```
 
 ## 示例
 
 ```bash
+# 交互式选择脚本
+xr
+
 # 运行 dev 脚本
 xr dev
 
@@ -34,11 +54,11 @@ xr build --mode production
 
 ## 等效命令对照
 
-| xr 命令 | npm | yarn | pnpm | bun |
-|---------|-----|------|------|-----|
-| `xr dev` | `npm run dev` | `yarn dev` | `pnpm dev` | `bun run dev` |
+| xr 命令    | npm             | yarn         | pnpm         | bun             |
+| ---------- | --------------- | ------------ | ------------ | --------------- |
+| `xr dev`   | `npm run dev`   | `yarn dev`   | `pnpm dev`   | `bun run dev`   |
 | `xr build` | `npm run build` | `yarn build` | `pnpm build` | `bun run build` |
-| `xr test` | `npm run test` | `yarn test` | `pnpm test` | `bun run test` |
+| `xr test`  | `npm run test`  | `yarn test`  | `pnpm test`  | `bun run test`  |
 
 ## 包管理器检测
 
@@ -55,13 +75,13 @@ xr build --mode production
 
 ```json
 {
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest",
-    "lint": "eslint ."
-  }
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "test": "vitest",
+        "lint": "eslint ."
+    }
 }
 ```
 

@@ -1,6 +1,7 @@
 import { logger } from '#common/utils/x/logger.js';
 import { managerExec } from '#common/utils/x/managerExec.js';
 import { executeInteraction } from '#common/utils/node/execute.js';
+import { select } from '#common/utils/ui/promot.js';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -24,6 +25,38 @@ const getCwdPackageJson = () => {
 const hasScript = (scriptName) => {
     const pkg = getCwdPackageJson();
     return !!(pkg.scripts && pkg.scripts[scriptName]);
+};
+
+/**
+ * 获取 package.json 中所有的 scripts
+ * @returns {object} scripts 对象
+ */
+const getScripts = () => {
+    const pkg = getCwdPackageJson();
+    return pkg.scripts || {};
+};
+
+/**
+ * 交互式选择脚本
+ * @returns {Promise<string|null>} 选中的脚本名称，无脚本时返回 null
+ */
+export const selectScript = async () => {
+    const scripts = getScripts();
+    const scriptNames = Object.keys(scripts);
+
+    if (scriptNames.length === 0) {
+        logger.warn('当前项目 package.json 中没有定义任何 scripts');
+        return null;
+    }
+
+    // 构建选择列表，显示脚本名称和对应命令
+    const choices = scriptNames.map((name) => ({
+        name: `${name.padEnd(20)} → ${scripts[name]}`,
+        value: name
+    }));
+
+    const selectedScript = await select('请选择要运行的脚本:', null, choices);
+    return selectedScript;
 };
 
 /**

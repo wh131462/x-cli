@@ -213,51 +213,69 @@ export const autoFixAuthOnlyProviders = async (authOnlyProviders) => {
     console.log('\n[自动修复配置]');
     console.log(`检测到 ${authOnlyProviders.length} 个不完整的 Provider 配置\n`);
 
+    const auth = loadAuth();
+
     for (const providerName of authOnlyProviders) {
         console.log(`正在修复: ${providerName}`);
 
-        // 询问用户这个 provider 的基本信息
-        const displayName = await input(`  显示名称 (留空使用 "${providerName}"):`, providerName);
-
-        // 询问 API 类型
-        const apiType = await select('  API 类型:', 'anthropic', [
-            { name: 'Anthropic 兼容 (Claude)', value: 'anthropic' },
-            { name: 'OpenAI 兼容 (GPT)', value: 'openai' }
+        // 询问用户选择操作
+        const action = await select('选择操作:', 'fix', [
+            { name: '补全配置', value: 'fix' },
+            { name: '删除此 Provider', value: 'delete' },
+            { name: '跳过', value: 'skip' }
         ]);
 
-        // 询问 baseURL
-        const defaultBaseUrl = apiType === 'anthropic' ? 'https://api.anthropic.com' : 'https://api.openai.com/v1';
-        const baseUrl = await input(`  API 地址 (留空使用默认):`, defaultBaseUrl);
+        if (action === 'fix') {
+            // 询问用户这个 provider 的基本信息
+            const displayName = await input(`  显示名称 (留空使用 "${providerName}"):`, providerName);
 
-        // 询问是否添加模型
-        const addModels = await confirm('  是否添加模型列表?', true);
-        const models = {};
+            // 询问 API 类型
+            const apiType = await select('  API 类型:', 'anthropic', [
+                { name: 'Anthropic 兼容 (Claude)', value: 'anthropic' },
+                { name: 'OpenAI 兼容 (GPT)', value: 'openai' }
+            ]);
 
-        if (addModels) {
-            console.log('  输入模型名称 (每行一个，输入空行结束):');
-            let modelInput = await input('    模型 1:');
-            let modelCount = 1;
-            while (modelInput) {
-                models[modelInput] = { name: modelInput };
-                modelCount++;
-                modelInput = await input(`    模型 ${modelCount}:`);
+            // 询问 baseURL
+            const defaultBaseUrl = apiType === 'anthropic' ? 'https://api.anthropic.com' : 'https://api.openai.com/v1';
+            const baseUrl = await input(`  API 地址 (留空使用默认):`, defaultBaseUrl);
+
+            // 询问是否添加模型
+            const addModels = await confirm('  是否添加模型列表?', true);
+            const models = {};
+
+            if (addModels) {
+                console.log('  输入模型名称 (每行一个，输入空行结束):');
+                let modelInput = await input('    模型 1:');
+                let modelCount = 1;
+                while (modelInput) {
+                    models[modelInput] = { name: modelInput };
+                    modelCount++;
+                    modelInput = await input(`    模型 ${modelCount}:`);
+                }
             }
+
+            // 创建 provider 配置
+            config.provider = config.provider || {};
+            config.provider[providerName] = {
+                id: providerName,
+                npm: apiType === 'anthropic' ? '@ai-sdk/anthropic' : '@ai-sdk/openai-compatible',
+                name: displayName,
+                options: {
+                    baseURL: baseUrl
+                },
+                models: models
+            };
+
+            console.log(`✓ ${providerName} 配置已补全\n`);
+            fixed++;
+        } else if (action === 'delete') {
+            delete auth[providerName];
+            saveAuth(auth);
+            console.log(`✓ ${providerName} 已从 auth.json 中删除\n`);
+            fixed++;
+        } else {
+            console.log(`跳过 ${providerName}\n`);
         }
-
-        // 创建 provider 配置
-        config.provider = config.provider || {};
-        config.provider[providerName] = {
-            id: providerName,
-            npm: apiType === 'anthropic' ? '@ai-sdk/anthropic' : '@ai-sdk/openai-compatible',
-            name: displayName,
-            options: {
-                baseURL: baseUrl
-            },
-            models: models
-        };
-
-        console.log(`✓ ${providerName} 配置已补全\n`);
-        fixed++;
     }
 
     if (fixed > 0) {

@@ -24,9 +24,10 @@ program
         }
         xi(packages.length ? packages : undefined, saveDev, global, extraArgs)
             .then(() => {
+                const installedPackages = packages.filter((p) => !p.startsWith('-'));
                 logger.info(
-                    packages.length
-                        ? `The [${packages}] have been installed successfully.`
+                    installedPackages.length
+                        ? `The [${installedPackages}] have been installed successfully.`
                         : 'Dependencies installed successfully.'
                 );
                 process.exit(0);

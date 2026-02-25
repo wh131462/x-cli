@@ -16,16 +16,20 @@ export const PNPM_INSTALL = () => {
     }
 };
 // 使用pnpm安装包
-export const pnpmInstall = (packageName, isDev = false, isGlobal = false, option = {}) => {
+export const pnpmInstall = (packageName, isDev = false, isGlobal = false, option = {}, extraArgs = []) => {
     let command = 'pnpm';
     let installType = 'add';
     if (isDev) installType = 'add --save-dev';
     else if (isGlobal) installType = 'add --global';
     if (!packageName) installType = 'install';
-    const fullCommand = `${command} ${installType} ${nameConverter(packageName)} ${Object.entries(option)
+    const optionsStr = Object.entries(option)
         .map(([key, value]) => `--${key}=${value}`)
-        .join(' ')}`;
-    return execute(fullCommand);
+        .join(' ');
+    const extraArgsStr = extraArgs.length ? extraArgs.join(' ') : '';
+    const fullCommand = `${command} ${installType} ${nameConverter(packageName)} ${optionsStr} ${extraArgsStr}`
+        .replace(/\s+/g, ' ')
+        .trim();
+    return executeInteraction(fullCommand);
 };
 // 使用pnpm卸载包
 export const pnpmUninstall = (packageName, isGlobal = false, options = {}) => {

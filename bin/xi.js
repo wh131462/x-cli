@@ -13,11 +13,19 @@ program
     .description('Install or uninstall a dependency in the project.')
     .allowUnknownOption(true)
     .action((_packageName, { saveDev, global }) => {
-        const packages = program.args.length ? program.args : undefined;
-        xi(packages, saveDev, global)
+        const packages = [];
+        const extraArgs = [];
+        for (const arg of program.args) {
+            if (arg.startsWith('-')) {
+                extraArgs.push(arg);
+            } else {
+                packages.push(arg);
+            }
+        }
+        xi(packages.length ? packages : undefined, saveDev, global, extraArgs)
             .then(() => {
                 logger.info(
-                    packages
+                    packages.length
                         ? `The [${packages}] have been installed successfully.`
                         : 'Dependencies installed successfully.'
                 );

@@ -9,16 +9,20 @@ import { execute, executeInteraction } from '#common/utils/node/execute.js';
  * @param options
  * @returns {Promise<unknown>}
  */
-export const bunInstall = (packageName, isDev = false, isGlobal = false, options = {}) => {
+export const bunInstall = (packageName, isDev = false, isGlobal = false, options = {}, extraArgs = []) => {
     let command = 'bun';
     let installType = 'add';
     if (isDev) installType = 'add --dev';
     else if (isGlobal) installType = 'add --global';
     if (!packageName) installType = 'install';
-    const fullCommand = `${command} ${installType} ${nameConverter(packageName)} ${Object.entries(options)
+    const optionsStr = Object.entries(options)
         .map(([key, value]) => `--${key}=${value}`)
-        .join(' ')}`;
-    return execute(fullCommand);
+        .join(' ');
+    const extraArgsStr = extraArgs.length ? extraArgs.join(' ') : '';
+    const fullCommand = `${command} ${installType} ${nameConverter(packageName)} ${optionsStr} ${extraArgsStr}`
+        .replace(/\s+/g, ' ')
+        .trim();
+    return executeInteraction(fullCommand);
 };
 
 /**

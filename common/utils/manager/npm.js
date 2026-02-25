@@ -21,7 +21,7 @@ export const NPM_INSTALL = () => {
  * @param options
  * @returns {Promise<unknown>}
  */
-export const npmInstall = (packageName, isDev = false, isGlobal = false, options = {}) => {
+export const npmInstall = (packageName, isDev = false, isGlobal = false, options = {}, extraArgs = []) => {
     let command = 'npm';
     let installType = 'install';
 
@@ -34,10 +34,14 @@ export const npmInstall = (packageName, isDev = false, isGlobal = false, options
         command = 'npm';
     }
 
-    const fullCommand = `${command} ${installType} ${nameConverter(packageName)} ${Object.keys(options)
+    const optionsStr = Object.keys(options)
         .map((key) => `--${key}=${options[key]}`)
-        .join(' ')}`;
-    return execute(fullCommand);
+        .join(' ');
+    const extraArgsStr = extraArgs.length ? extraArgs.join(' ') : '';
+    const fullCommand = `${command} ${installType} ${nameConverter(packageName)} ${optionsStr} ${extraArgsStr}`
+        .replace(/\s+/g, ' ')
+        .trim();
+    return executeInteraction(fullCommand);
 };
 
 /**

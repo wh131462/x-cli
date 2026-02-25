@@ -11,7 +11,7 @@ export const YARN_INSTALL = async () => {
     await npmInstall('yarn', false, true);
 };
 // 使用yarn安装包
-export const yarnInstall = (packageName, isDev = false, isGlobal = false, option = {}) => {
+export const yarnInstall = (packageName, isDev = false, isGlobal = false, option = {}, extraArgs = []) => {
     let command = 'yarn';
     let installType = 'add';
 
@@ -25,10 +25,14 @@ export const yarnInstall = (packageName, isDev = false, isGlobal = false, option
     }
     if (!packageName) installType = '';
 
-    const fullCommand = `${command} ${installType} ${nameConverter(packageName)} ${Object.keys(option)
+    const optionsStr = Object.keys(option)
         .map((key) => `--${key}=${option[key]}`)
-        .join(' ')}`;
-    return execute(fullCommand);
+        .join(' ');
+    const extraArgsStr = extraArgs.length ? extraArgs.join(' ') : '';
+    const fullCommand = `${command} ${installType} ${nameConverter(packageName)} ${optionsStr} ${extraArgsStr}`
+        .replace(/\s+/g, ' ')
+        .trim();
+    return executeInteraction(fullCommand);
 };
 
 // 使用yarn卸载包
